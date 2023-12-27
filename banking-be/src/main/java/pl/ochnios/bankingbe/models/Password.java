@@ -15,5 +15,6 @@ public class Password {
     private UUID id;
 
     @NotNull
+    @Column(nullable = false)
     private String password;
 }

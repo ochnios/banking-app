@@ -21,20 +21,25 @@ public class Transfer {
 
     @NotNull
     @Size(max = 34)
+    @Column(nullable = false)
     private String recipientIban;
 
     @NotNull
     @Size(min = 3, max = 80)
+    @Column(nullable = false)
     private String recipientName;
 
     @NotNull
     @Size(min = 3, max = 80)
+    @Column(nullable = false)
     private String recipientAddress;
 
     @NotNull
     @Size(min = 3, max = 80)
+    @Column(nullable = false)
     private String title;
 
     @NotNull
+    @Column(nullable = false)
     private Double amount;
 }

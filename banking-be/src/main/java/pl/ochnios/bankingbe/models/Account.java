@@ -18,6 +18,7 @@ public class Account {
 
     @NotNull
     @Size(max = 34)
+    @Column(unique = true, nullable = false)
     private String iban;
 
     @NotNull

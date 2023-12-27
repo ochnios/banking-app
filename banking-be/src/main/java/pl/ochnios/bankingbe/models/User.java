@@ -18,18 +18,22 @@ public class User {
 
     @NotNull
     @Size(min = 3, max = 50)
+    @Column(nullable = false)
     private String name;
 
     @NotNull
     @Size(min = 3, max = 50)
+    @Column(nullable = false)
     private String surname;
 
     @NotNull
     @Email
+    @Column(unique = true, nullable = false)
     private String email;
 
     @NotNull
     @Size(min = 3, max = 200)
+    @Column(nullable = false)
     private String address;
 
     @Size(min = 16, max = 16)
@@ -47,6 +51,8 @@ public class User {
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private Account account;
 
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private UserStatus status;
 
     private Integer loginAttempts;
