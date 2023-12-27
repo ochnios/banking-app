@@ -32,6 +32,10 @@ public class User {
     private String email;
 
     @NotNull
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @NotNull
     @Size(min = 3, max = 200)
     @Column(nullable = false)
     private String address;
