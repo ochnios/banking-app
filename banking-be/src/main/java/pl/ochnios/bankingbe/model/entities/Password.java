@@ -2,11 +2,15 @@ package pl.ochnios.bankingbe.model.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "passwords")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Password {
 
     @Id

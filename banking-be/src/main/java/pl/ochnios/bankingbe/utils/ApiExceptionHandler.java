@@ -18,7 +18,7 @@ public class ApiExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(ControllerAdvice.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 
-    @ExceptionHandler({ConstraintViolationException.class})
+    @ExceptionHandler(ConstraintViolationException.class)
     public final ResponseEntity<ApiError> handleConstraintViolation(Exception e) {
         return buildResponse(e, "Constraint violation exception", HttpStatus.BAD_REQUEST);
     }
@@ -30,6 +30,7 @@ public class ApiExceptionHandler {
 
     private ResponseEntity<ApiError> buildResponse(Exception e, String message, HttpStatus status) {
         String traceId = Tracer.simpleTraceId();
+        
         logger.error(String.format("traceId=%s; %s", traceId, e.getMessage()));
 
         ApiError apiError = new ApiError(

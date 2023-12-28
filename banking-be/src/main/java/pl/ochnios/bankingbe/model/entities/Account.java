@@ -3,12 +3,19 @@ package pl.ochnios.bankingbe.model.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
 @Table(name = "accounts")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Account {
 
     @Id
@@ -21,6 +28,7 @@ public class Account {
     @Column(unique = true, nullable = false, length = 26)
     private String accountNumber;
 
+    @Setter
     @NotNull
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
