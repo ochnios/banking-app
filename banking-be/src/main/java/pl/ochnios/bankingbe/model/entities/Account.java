@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -17,14 +17,16 @@ public class Account {
     private UUID id;
 
     @NotNull
-    @Size(max = 34)
-    @Column(unique = true, nullable = false)
-    private String iban;
+    @Size(min = 26, max = 26) // polish bank account number
+    @Column(unique = true, nullable = false, length = 26)
+    private String accountNumber;
 
     @NotNull
-    @OneToOne(mappedBy = "account")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User owner;
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
-    private List<Transfer> transfers;
+    @NotNull
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal balance;
 }

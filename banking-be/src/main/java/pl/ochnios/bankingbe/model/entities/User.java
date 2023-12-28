@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -41,13 +42,15 @@ public class User {
     private Password password;
 
     // In real application there should be OneToMany relationship
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", referencedColumnName = "account_id")
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Account account;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "personal_data_id", referencedColumnName = "personal_data_id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private PersonalData personalData;
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<Transfer> transfers;
 
     // Technical attributes
     @Enumerated(value = EnumType.STRING)
