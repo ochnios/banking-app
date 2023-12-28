@@ -36,17 +36,6 @@ public class User {
     private String username;
 
     @NotNull
-    @Size(min = 3, max = 200)
-    @Column(nullable = false)
-    private String address;
-
-    @Size(min = 16, max = 16)
-    private String cardNumber; // sensitive data
-
-    @Size(max = 50)
-    private String identification; // sensitive data
-
-    @NotNull
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "password_id", referencedColumnName = "password_id")
     private Password password;
@@ -54,6 +43,10 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private Account account;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "personal_data_id", referencedColumnName = "personal_data_id")
+    private PersonalData personalData;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
