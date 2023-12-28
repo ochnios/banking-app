@@ -1,4 +1,4 @@
-package pl.ochnios.bankingbe.model.entities.dtos;
+package pl.ochnios.bankingbe.model.dtos;
 
 public class AuthDto {
 }
