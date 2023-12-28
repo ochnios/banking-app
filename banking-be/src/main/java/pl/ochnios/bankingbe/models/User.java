@@ -40,6 +40,7 @@ public class User {
     @JoinColumn(name = "password_id", referencedColumnName = "password_id")
     private Password password;
 
+    // In real application there should be OneToMany relationship
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private Account account;
@@ -48,6 +49,7 @@ public class User {
     @JoinColumn(name = "personal_data_id", referencedColumnName = "personal_data_id")
     private PersonalData personalData;
 
+    // Technical attributes
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
