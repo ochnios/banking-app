@@ -1,4 +1,4 @@
-package pl.ochnios.bankingbe.dtos;
+package pl.ochnios.bankingbe.model.entities.dtos;
 
 import lombok.Data;
 

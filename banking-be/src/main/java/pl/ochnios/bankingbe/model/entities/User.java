@@ -1,4 +1,4 @@
-package pl.ochnios.bankingbe.models;
+package pl.ochnios.bankingbe.model.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
