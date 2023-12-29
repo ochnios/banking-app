@@ -30,8 +30,8 @@ public class ApiExceptionHandler {
 
     private ResponseEntity<ApiError> buildResponse(Exception e, String message, HttpStatus status) {
         String traceId = Tracer.simpleTraceId();
-        
-        logger.error(String.format("traceId=%s; %s", traceId, e.getMessage()));
+
+        logger.error(String.format("traceId=%s; %s", traceId, e.getMessage()), e);
 
         ApiError apiError = new ApiError(
                 dateFormat.format(new Date()),

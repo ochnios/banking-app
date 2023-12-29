@@ -13,11 +13,10 @@ import java.util.Date;
 public class JwtProvider {
 
     private static final SecretKey secret = Jwts.SIG.HS512.key().build();
-    private static final int JWT_EXPIRATION = 5 * 60 * 1000;
 
     public String generateJwtForUser(User user) {
         Date currentDate = new Date();
-        Date expirationDate = new Date(currentDate.getTime() + JWT_EXPIRATION);
+        Date expirationDate = new Date(currentDate.getTime() + SecurityConf.JWT_EXPIRATION_MS);
         JwtBuilder jwt = Jwts.builder()
                 .issuedAt(currentDate)
                 .expiration(expirationDate)

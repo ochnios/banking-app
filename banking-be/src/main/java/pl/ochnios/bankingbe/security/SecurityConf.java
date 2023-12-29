@@ -21,6 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConf {
 
+    public static final String AUTH_COOKIE_NAME = "accessToken";
+    public static final int JWT_EXPIRATION_MS = 5 * 60 * 1000;
+
     private final JwtAuthEntryPoint authEntryPoint;
 
     @Bean
