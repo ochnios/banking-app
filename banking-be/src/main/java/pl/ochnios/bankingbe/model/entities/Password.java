@@ -3,12 +3,14 @@ package pl.ochnios.bankingbe.model.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "passwords")
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Password {
@@ -20,5 +22,5 @@ public class Password {
 
     @NotNull
     @Column(nullable = false)
-    private String password;
+    private String hash;
 }

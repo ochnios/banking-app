@@ -7,6 +7,8 @@ import pl.ochnios.bankingbe.model.dtos.UserDto;
 import pl.ochnios.bankingbe.model.mappers.UserMapper;
 import pl.ochnios.bankingbe.services.UserService;
 
+import java.util.List;
+
 @RequestMapping("/api/users")
 @RestController
 @CrossOrigin
@@ -15,6 +17,11 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+
+    @GetMapping // TEMP
+    public ResponseEntity<List<UserDto>> getAll() {
+        return ResponseEntity.ok(userMapper.map(userService.getAllUsers()));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getById(@PathVariable String id) {
