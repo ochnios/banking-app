@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.repositories.UserRepository;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,14 +17,6 @@ import java.util.UUID;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-
-    public User registerUser(User user) {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
 
     public User getUserById(@NotBlank String id) {
         return userRepository.findById(UUID.fromString(id))
