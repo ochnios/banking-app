@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
-
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -31,23 +30,29 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         getAccessTokenFromCookie(request)
                 .filter(jwtProvider::validateJwt)
-                .ifPresent(token -> authenticateUser(response, token));
+                .ifPresent(token -> {
+                    User user = userService.getUserById(jwtProvider.getUserIdFromJwt(token));
+                    authenticateUser(user);
+                    refreshToken(user, response);
+                });
 
         filterChain.doFilter(request, response);
     }
 
-    private void authenticateUser(HttpServletResponse response, String token) {
-        String userId = jwtProvider.getUserIdFromJwt(token);
-        User authUser = userService.getUserById(userId);
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return request.getServletPath().startsWith("/api/auth");
+    }
 
+    private void authenticateUser(User user) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                authUser.getUsername(),
-                null,
-                authUser.getAuthorities()
+                user, null, user.getAuthorities()
         );
         SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
 
-        String refreshedToken = jwtProvider.generateJwtForUser(authUser);
+    private void refreshToken(User user, HttpServletResponse response) {
+        String refreshedToken = jwtProvider.generateJwtForUser(user);
         response.addCookie(generateAuthCookie(refreshedToken));
     }
 

@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConf {
 
     public static final String AUTH_COOKIE_NAME = "accessToken";
-    public static final int JWT_EXPIRATION_MS = 5 * 60 * 1000;
+    public static final int JWT_EXPIRATION_MS = 3 * 60 * 1000;
 
     private final JwtAuthEntryPoint authEntryPoint;
 
@@ -34,7 +34,7 @@ public class SecurityConf {
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(authEntryPoint)
                 )
-                .sessionManagement((session) -> session
+                .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(
