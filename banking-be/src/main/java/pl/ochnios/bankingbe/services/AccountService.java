@@ -14,8 +14,8 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
-    public Account getAccountById(String id) {
-        return accountRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Account with id=%s not found", id)));
+    public Account getAccountByUserId(String userId) {
+        return accountRepository.findByOwner_Id(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Account for userId=%s not found", userId)));
     }
 }
