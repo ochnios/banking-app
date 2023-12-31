@@ -35,6 +35,15 @@ public class AuthController {
         String jwt = jwtProvider.generateJwtForUser(authUser);
         securityService.setAccessToken(response, jwt);
 
-        return ResponseEntity.ok(new AuthDto("Success"));
+        return ResponseEntity.ok(new AuthDto("Successfully logged in"));
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<AuthDto> logout(HttpServletRequest request, HttpServletResponse response) {
+        if (securityService.getAccessToken(request).isEmpty()) {
+            return ResponseEntity.badRequest().body(new AuthDto("Already logged out"));
+        }
+        securityService.removeAccessToken(response);
+        return ResponseEntity.ok(new AuthDto("Successfully logged out"));
     }
 }

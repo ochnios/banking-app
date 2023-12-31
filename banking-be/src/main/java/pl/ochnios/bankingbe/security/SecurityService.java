@@ -48,12 +48,16 @@ public class SecurityService {
     }
 
     public void setAccessToken(HttpServletResponse response, String jwt) {
-        response.addCookie(generateAuthCookie(jwt));
+        response.addCookie(generateAuthCookie(jwt, SecurityConf.JWT_EXPIRATION_MS / 1000));
     }
 
-    private Cookie generateAuthCookie(String jwt) {
+    public void removeAccessToken(HttpServletResponse response) {
+        response.addCookie(generateAuthCookie("", 0));
+    }
+
+    private Cookie generateAuthCookie(String jwt, int maxAge) {
         Cookie authCookie = new Cookie(SecurityConf.AUTH_COOKIE_NAME, jwt);
-        authCookie.setMaxAge(SecurityConf.JWT_EXPIRATION_MS / 1000);
+        authCookie.setMaxAge(maxAge);
         authCookie.setHttpOnly(true);
         authCookie.setSecure(false); // TEMP
         return authCookie;
