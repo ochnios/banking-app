@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.model.dtos.AuthDto;
 import pl.ochnios.bankingbe.model.dtos.LoginDto;
-import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.security.JwtProvider;
 import pl.ochnios.bankingbe.security.SecurityService;
 import pl.ochnios.bankingbe.services.UserService;
@@ -26,21 +25,19 @@ public class AuthController {
     public ResponseEntity<AuthDto> login(@RequestBody LoginDto loginDto,
                                          HttpServletRequest request, HttpServletResponse response) {
 
-        if (securityService.getAccessToken(request).isPresent()) {
+        if (securityService.findAccessToken(request).isPresent()) {
             return ResponseEntity.badRequest().body(new AuthDto("Already logged in"));
         }
 
-        securityService.authenticateUser(loginDto);
-        User authUser = userService.getUserByUsername(loginDto.getUsername());
-        String jwt = jwtProvider.generateJwtForUser(authUser);
-        securityService.setAccessToken(response, jwt);
+        String accessToken = securityService.authenticateWithCredentials(loginDto);
+        securityService.setAccessToken(response, accessToken);
 
         return ResponseEntity.ok(new AuthDto("Successfully logged in"));
     }
 
     @GetMapping("/logout")
     public ResponseEntity<AuthDto> logout(HttpServletRequest request, HttpServletResponse response) {
-        if (securityService.getAccessToken(request).isEmpty()) {
+        if (securityService.findAccessToken(request).isEmpty()) {
             return ResponseEntity.badRequest().body(new AuthDto("Already logged out"));
         }
         securityService.removeAccessToken(response);
