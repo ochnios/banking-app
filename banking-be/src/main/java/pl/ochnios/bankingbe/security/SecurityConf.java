@@ -3,6 +3,7 @@ package pl.ochnios.bankingbe.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -43,7 +44,8 @@ public class SecurityConf {
                 .authorizeHttpRequests(
                         auth -> auth
                                 .requestMatchers("/h2-console/**").permitAll() // TEMP
-                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/auth/logout").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
