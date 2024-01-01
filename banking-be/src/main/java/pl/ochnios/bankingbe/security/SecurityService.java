@@ -10,7 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pl.ochnios.bankingbe.model.dtos.LoginDto;
+import pl.ochnios.bankingbe.model.dtos.UserDto;
 import pl.ochnios.bankingbe.model.entities.User;
+import pl.ochnios.bankingbe.model.mappers.UserMapper;
 import pl.ochnios.bankingbe.repositories.UserRepository;
 
 import java.util.Arrays;
@@ -24,26 +26,36 @@ public class SecurityService {
     private final AuthenticationManager authManager;
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final UserMapper userMapper;
 
-    public String getCurrentUserId() {
+    public String getAuthenticatedUserId() {
         return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId().toString();
     }
 
+    public UserDto getAuthenticatedUser() {
+        return userMapper.map((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    }
+
     public String authenticateWithCredentials(LoginDto loginDto) {
-        return authenticate(loginDto.getUsername(), userRepository.findByUsername(loginDto.getUsername()), loginDto.getPassword());
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                loginDto.getUsername(), loginDto.getPassword()
+        );
+        Authentication auth = authManager.authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        return jwtProvider.generateJwtForUser((User) auth.getPrincipal());
     }
 
     public String authenticateWithAccessToken(String jwt) {
         UUID userId = UUID.fromString(jwtProvider.getUserIdFromJwt(jwt));
-        return authenticate("", userRepository.findById(userId), null);
-    }
+        User authUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException(String.format("Can't find user with id=%s to authenticate", userId)));
 
-    private String authenticate(String username, Optional<User> userOpt, String password) {
-        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                authUser, null, authUser.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        User authUser = userOpt
-                .orElseThrow(() -> new RuntimeException(String.format("Can't find user '%s' to authenticate", username)));
         return jwtProvider.generateJwtForUser(authUser);
     }
 
