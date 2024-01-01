@@ -50,16 +50,9 @@ public class User implements UserDetails {
     private String username;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "password_id", referencedColumnName = "password_id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "password_id")
     private Password password;
-
-    // In real application there should be OneToMany relationship
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Account account;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private PersonalData personalData;
 
     @OneToMany
     @JoinColumn(name = "user_id")

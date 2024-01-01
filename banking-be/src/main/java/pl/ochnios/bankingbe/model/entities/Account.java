@@ -19,7 +19,6 @@ import java.util.UUID;
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "account_id")
     private UUID id;
 
@@ -29,9 +28,9 @@ public class Account {
     private String accountNumber;
 
     @Setter
-    @NotNull
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "account_id")
+    @MapsId
     private User owner;
 
     @NotNull

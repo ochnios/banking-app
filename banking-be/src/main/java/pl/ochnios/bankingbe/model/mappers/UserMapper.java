@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 public interface UserMapper {
 
     @Mapping(source = ".", target = ".")
-    @Mapping(source = "account.id", target = "accountId")
-    @Mapping(source = "personalData.id", target = "personalDataId")
     UserDto map(User user);
 
     default List<UserDto> map(List<User> user) {

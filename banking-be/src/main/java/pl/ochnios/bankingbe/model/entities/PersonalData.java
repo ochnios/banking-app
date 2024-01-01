@@ -1,7 +1,6 @@
 package pl.ochnios.bankingbe.model.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,9 +22,9 @@ public class PersonalData {
     private UUID id;
 
     @Setter
-    @NotNull
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "personal_data_id")
+    @MapsId
     private User user;
 
     @Size(min = 3, max = 200)

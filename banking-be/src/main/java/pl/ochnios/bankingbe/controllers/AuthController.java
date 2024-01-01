@@ -7,9 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.model.dtos.AuthDto;
 import pl.ochnios.bankingbe.model.dtos.LoginDto;
-import pl.ochnios.bankingbe.security.JwtProvider;
 import pl.ochnios.bankingbe.security.SecurityService;
-import pl.ochnios.bankingbe.services.UserService;
 
 @RequestMapping("/api/auth")
 @RestController
@@ -18,8 +16,6 @@ import pl.ochnios.bankingbe.services.UserService;
 public class AuthController {
 
     private final SecurityService securityService;
-    private final UserService userService;
-    private final JwtProvider jwtProvider;
 
     @PostMapping("/login")
     public ResponseEntity<AuthDto> login(@RequestBody LoginDto loginDto,
