@@ -16,6 +16,10 @@ public class GenericResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
 
+    public static <T> GenericResponse<T> success() {
+        return success(null);
+    }
+
     public static <T> GenericResponse<T> success(T data) {
         return new GenericResponse<T>(true, null, data);
     }

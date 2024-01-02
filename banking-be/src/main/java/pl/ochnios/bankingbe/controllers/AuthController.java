@@ -8,7 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.model.dtos.input.LoginDto;
-import pl.ochnios.bankingbe.model.dtos.output.AuthDto;
+import pl.ochnios.bankingbe.model.dtos.output.GenericResponse;
+import pl.ochnios.bankingbe.model.dtos.output.UserDto;
 import pl.ochnios.bankingbe.security.SecurityService;
 
 @RequestMapping("/api/auth")
@@ -20,30 +21,35 @@ public class AuthController {
     private final SecurityService securityService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthDto> login(@RequestBody LoginDto loginDto,
-                                         HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<GenericResponse<UserDto>> login(@RequestBody LoginDto loginDto,
+                                                          HttpServletRequest request, HttpServletResponse response) {
         delay(500);
+
+        GenericResponse<UserDto> responseBody;
         if (securityService.findAccessToken(request).isPresent()) {
-            return ResponseEntity.badRequest().body(new AuthDto("Already logged in"));
+            responseBody = GenericResponse.error("Already logged in", null);
+            return ResponseEntity.badRequest().body(responseBody);
+        } else {
+            try {
+                String accessToken = securityService.authenticateWithCredentials(loginDto);
+                securityService.setAccessToken(response, accessToken);
+            } catch (BadCredentialsException e) {
+                responseBody = GenericResponse.error("Bad credentials", null);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+            }
         }
 
-        try {
-            String accessToken = securityService.authenticateWithCredentials(loginDto);
-            securityService.setAccessToken(response, accessToken);
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(new AuthDto("Bad credentials"), HttpStatus.UNAUTHORIZED);
-        }
-
-        return ResponseEntity.ok(new AuthDto("Successfully logged in"));
+        responseBody = GenericResponse.success(securityService.getAuthenticatedUser());
+        return ResponseEntity.ok().body(responseBody);
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<AuthDto> logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<GenericResponse<Void>> logout(HttpServletRequest request, HttpServletResponse response) {
         if (securityService.findAccessToken(request).isEmpty()) {
-            return ResponseEntity.badRequest().body(new AuthDto("Already logged out"));
+            return ResponseEntity.badRequest().body(GenericResponse.error("Already logged out"));
         }
         securityService.removeAccessToken(response);
-        return ResponseEntity.ok(new AuthDto("Successfully logged out"));
+        return ResponseEntity.ok().body(GenericResponse.success());
     }
 
     private void delay(long millis) {

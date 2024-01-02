@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.ochnios.bankingbe.model.dtos.output.AccountDto;
+import pl.ochnios.bankingbe.model.dtos.output.GenericResponse;
 import pl.ochnios.bankingbe.security.SecurityService;
 import pl.ochnios.bankingbe.services.AccountService;
 
@@ -20,8 +21,9 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping
-    public ResponseEntity<AccountDto> getAccount() {
+    public ResponseEntity<GenericResponse<AccountDto>> getAccount() {
         String userId = securityService.getAuthenticatedUserId();
-        return ResponseEntity.ok(accountService.getAccountByUserId(userId));
+        AccountDto accountDto = accountService.getAccountByUserId(userId);
+        return ResponseEntity.ok().body(GenericResponse.success(accountDto));
     }
 }

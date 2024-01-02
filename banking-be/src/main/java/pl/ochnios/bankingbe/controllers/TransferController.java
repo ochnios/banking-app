@@ -1,12 +1,15 @@
 package pl.ochnios.bankingbe.controllers;
 
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.model.dtos.input.PageCriteria;
+import pl.ochnios.bankingbe.model.dtos.input.TransferOrderDto;
+import pl.ochnios.bankingbe.model.dtos.output.GenericResponse;
 import pl.ochnios.bankingbe.model.dtos.output.PageDto;
 import pl.ochnios.bankingbe.model.dtos.output.TransferDto;
 import pl.ochnios.bankingbe.security.SecurityService;
@@ -25,13 +28,14 @@ public class TransferController {
     private final Validator validator;
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransferDto> getTransfer(@PathVariable String id) {
-        return ResponseEntity.ok(transferService.getTransferById(id));
+    public ResponseEntity<GenericResponse<TransferDto>> getTransfer(@PathVariable String id) {
+        TransferDto transferDto = transferService.getTransferById(id);
+        return ResponseEntity.ok().body(GenericResponse.success(transferDto));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PageDto<TransferDto>> searchTransfers(@RequestParam(required = false) String type,
-                                                                PageCriteria pageCriteria) {
+    public ResponseEntity<GenericResponse<PageDto<TransferDto>>> searchTransfers(@RequestParam(required = false) String type,
+                                                                                 PageCriteria pageCriteria) {
 
         String userId = securityService.getAuthenticatedUserId();
 
@@ -39,7 +43,19 @@ public class TransferController {
         PageCriteria validatedCriteria = validOrDefaultPageCriteria(pageCriteria);
 
         PageDto<TransferDto> transfers = transferService.getTransfersForUser(userId, sanitizedType, validatedCriteria);
-        return ResponseEntity.ok(transfers);
+        return ResponseEntity.ok().body(GenericResponse.success(transfers));
+    }
+
+    @PostMapping("/new")
+    public ResponseEntity<GenericResponse<TransferDto>> newTransfer(@RequestBody TransferOrderDto transferOrderDto) {
+        Set<ConstraintViolation<TransferOrderDto>> violations = validator.validate(transferOrderDto);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
+        // String userId = securityService.getAuthenticatedUserId();
+
+        return ResponseEntity.ok().body(GenericResponse.success(new TransferDto()));
     }
 
     private PageCriteria validOrDefaultPageCriteria(PageCriteria pageCriteria) {
