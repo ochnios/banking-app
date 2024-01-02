@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
-import pl.ochnios.bankingbe.model.dtos.input.AuthDto;
-import pl.ochnios.bankingbe.model.dtos.output.LoginDto;
+import pl.ochnios.bankingbe.model.dtos.input.LoginDto;
+import pl.ochnios.bankingbe.model.dtos.output.AuthDto;
 import pl.ochnios.bankingbe.security.SecurityService;
 
 @RequestMapping("/api/auth")
@@ -23,7 +23,6 @@ public class AuthController {
     public ResponseEntity<AuthDto> login(@RequestBody LoginDto loginDto,
                                          HttpServletRequest request, HttpServletResponse response) {
         delay(500);
-
         if (securityService.findAccessToken(request).isPresent()) {
             return ResponseEntity.badRequest().body(new AuthDto("Already logged in"));
         }

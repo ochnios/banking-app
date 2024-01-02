@@ -3,6 +3,7 @@ package pl.ochnios.bankingbe.controllers;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.model.dtos.input.PageCriteria;
@@ -30,20 +31,27 @@ public class TransferController {
 
     @GetMapping("/search")
     public ResponseEntity<PageDto<TransferDto>> searchTransfers(@RequestParam(required = false) String type,
-                                                                @RequestParam(required = false) Integer pageNumber,
-                                                                @RequestParam(required = false) Integer pageSize,
-                                                                @RequestParam(required = false) String sortField,
-                                                                @RequestParam(required = false) String sortDirection) {
+                                                                PageCriteria pageCriteria) {
 
         String userId = securityService.getAuthenticatedUserId();
 
-        PageCriteria pageCriteria = new PageCriteria(pageNumber, pageSize, sortField, sortDirection);
-        Set<ConstraintViolation<PageCriteria>> violations = validator.validate(pageCriteria);
-        if (!violations.isEmpty()) {
-            pageCriteria = new PageCriteria(1, 5, "time", "desc");
+        String sanitizedType = StringEscapeUtils.escapeJson(type);
+        PageCriteria validatedCriteria = validOrDefaultPageCriteria(pageCriteria);
+
+        PageDto<TransferDto> transfers = transferService.getTransfersForUser(userId, sanitizedType, validatedCriteria);
+        return ResponseEntity.ok(transfers);
+    }
+
+    private PageCriteria validOrDefaultPageCriteria(PageCriteria pageCriteria) {
+        if (pageCriteria == null) {
+            return new PageCriteria("1", "1", "time", "desc");
         }
 
-        PageDto<TransferDto> transfers = transferService.getTransfersForUser(userId, type, pageCriteria);
-        return ResponseEntity.ok(transfers);
+        Set<ConstraintViolation<PageCriteria>> violations = validator.validate(pageCriteria);
+        if (!violations.isEmpty()) {
+            return new PageCriteria("1", "5", "time", "desc");
+        }
+
+        return pageCriteria;
     }
 }
