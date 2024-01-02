@@ -4,14 +4,21 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.ochnios.bankingbe.exceptions.TransferFailureException;
 import pl.ochnios.bankingbe.model.dtos.input.PageCriteria;
+import pl.ochnios.bankingbe.model.dtos.input.TransferOrderDto;
 import pl.ochnios.bankingbe.model.dtos.output.PageDto;
 import pl.ochnios.bankingbe.model.dtos.output.TransferDto;
-import pl.ochnios.bankingbe.model.entities.Transfer;
+import pl.ochnios.bankingbe.model.entities.*;
 import pl.ochnios.bankingbe.model.mappers.PageMapper;
 import pl.ochnios.bankingbe.model.mappers.TransferMapper;
+import pl.ochnios.bankingbe.repositories.AccountRepository;
+import pl.ochnios.bankingbe.repositories.PersonalDataRepository;
 import pl.ochnios.bankingbe.repositories.TransferRepository;
+import pl.ochnios.bankingbe.repositories.UserRepository;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -19,6 +26,9 @@ import java.util.UUID;
 public class TransferService {
 
     private final TransferRepository transferRepository;
+    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
+    private final PersonalDataRepository personalDataRepository;
     private final TransferMapper transferMapper;
     private final PageMapper pageMapper;
 
@@ -40,5 +50,47 @@ public class TransferService {
         }
 
         return pageMapper.mapTransferPage(transfersPage);
+    }
+
+    @Transactional
+    public TransferDto createTransfer(String senderId, TransferOrderDto transferOrderDto) {
+        UUID senderUUID = UUID.fromString(senderId);
+        Transfer transfer = transferMapper.map(transferOrderDto);
+
+        Account senderAccount = accountRepository.findById(senderUUID).orElseThrow();
+        if (senderAccount.getAccountNumber().equals(transfer.getRecipientAccountNumber())) {
+            throw new TransferFailureException("Sender account can not be recipient account");
+        }
+        if (senderAccount.getBalance().compareTo(transfer.getAmount()) < 0) {
+            throw new TransferFailureException("No enough funds");
+        }
+
+        User sender = userRepository.findById(senderUUID).orElseThrow();
+        PersonalData senderData = personalDataRepository.findById(senderUUID).orElseThrow();
+        transfer.setSender(sender);
+        transfer.setSenderAccountNumber(senderAccount.getAccountNumber());
+        transfer.setSenderName(sender.getName() + " " + sender.getSurname());
+        transfer.setSenderAddress(senderData.getAddress());
+
+        BigDecimal senderAccountBalance = senderAccount.getBalance();
+        senderAccount.setBalance(senderAccountBalance.subtract(transfer.getAmount()));
+        accountRepository.save(senderAccount);
+
+        Account recipientAccount = accountRepository.findAccountByAccountNumber(transfer.getRecipientAccountNumber()).orElse(null);
+        if (recipientAccount == null) {
+            transfer.setType(TransferType.EXTERNAL);
+            externalTransfer();
+        } else {
+            transfer.setType(TransferType.INTERNAL);
+            BigDecimal recipientAccountBalance = recipientAccount.getBalance();
+            recipientAccount.setBalance(recipientAccountBalance.add(transfer.getAmount()));
+            accountRepository.save(recipientAccount);
+        }
+
+        return transferMapper.map(transferRepository.saveAndFlush(transfer));
+    }
+
+    private void externalTransfer() {
+        throw new TransferFailureException("External transfers are not currently supported");
     }
 }

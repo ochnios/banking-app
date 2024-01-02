@@ -15,4 +15,5 @@ public class TransferDto {
     private String recipientAccountNumber;
     private String recipientName;
     private String recipientAddress;
+    private String type;
 }

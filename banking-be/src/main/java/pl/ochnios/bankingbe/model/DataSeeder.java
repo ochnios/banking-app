@@ -18,7 +18,6 @@ import pl.ochnios.bankingbe.repositories.TransferRepository;
 import pl.ochnios.bankingbe.repositories.UserRepository;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
@@ -40,11 +39,11 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         User user1 = createUser("John", "Doe", "john.doe@example.com", "doej3622", "HardPassword1");
         createPersonalData(user1, "123 Main Street, Warsaw, Mazovia, 00-001, Poland", "XXXXYYYYZZZZ0001", "XYZ00001");
-        createAccount(user1, "XXAAAABBBBCCCCDDDDEEEE0001", "1000.00");
+        createAccount(user1, "00111122223333444455550001", "1000.00");
 
         User user2 = createUser("Mark", "Smith", "mark.smith@example.com", "smithm1005", "HardPassword2");
         createPersonalData(user2, "321 Side Street, Katowice, Silesia, 00-002, Poland", "XXXXYYYYZZZZ0002", "XYZ00002");
-        createAccount(user2, "XXAAAABBBBCCCCDDDDEEEE0002", "100.00");
+        createAccount(user2, "00111122223333444455550002", "100.00");
 
         // Only internal transfers
         createTransfer(user1, user2, "From John to Mark 1", "10.00");
@@ -78,7 +77,6 @@ public class DataSeeder implements CommandLineRunner {
 
     private void createTransfer(User sender, User recipient, String title, String amount) {
         Transfer transfer = Transfer.builder()
-                .time(new Date())
                 .title(title)
                 .amount(new BigDecimal(amount))
                 .sender(sender)
@@ -89,6 +87,7 @@ public class DataSeeder implements CommandLineRunner {
                 .recipientAccountNumber(accountRepository.findById(recipient.getId()).get().getAccountNumber())
                 .recipientName(String.format("%s %s", recipient.getName(), recipient.getSurname()))
                 .recipientAddress(personalDataRepository.findById(recipient.getId()).get().getAddress())
+                .type(TransferType.INTERNAL)
                 .build();
 
         transferRepository.save(transfer);

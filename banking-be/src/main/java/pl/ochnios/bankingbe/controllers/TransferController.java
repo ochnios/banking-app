@@ -7,11 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.ochnios.bankingbe.exceptions.TransferFailureException;
 import pl.ochnios.bankingbe.model.dtos.input.PageCriteria;
 import pl.ochnios.bankingbe.model.dtos.input.TransferOrderDto;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.PageDto;
 import pl.ochnios.bankingbe.model.dtos.output.TransferDto;
+import pl.ochnios.bankingbe.model.mappers.TransferMapper;
 import pl.ochnios.bankingbe.security.SecurityService;
 import pl.ochnios.bankingbe.services.TransferService;
 
@@ -25,6 +27,7 @@ public class TransferController {
 
     private final SecurityService securityService;
     private final TransferService transferService;
+    private final TransferMapper transferMapper;
     private final Validator validator;
 
     @GetMapping("/{id}")
@@ -53,9 +56,13 @@ public class TransferController {
             throw new ConstraintViolationException(violations);
         }
 
-        // String userId = securityService.getAuthenticatedUserId();
-
-        return ResponseEntity.ok().body(ApiResponse.success(new TransferDto()));
+        String userId = securityService.getAuthenticatedUserId();
+        try {
+            TransferDto createdTransfer = transferService.createTransfer(userId, transferOrderDto);
+            return ResponseEntity.accepted().body(ApiResponse.success(createdTransfer));
+        } catch (TransferFailureException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
     }
 
     private PageCriteria validOrDefaultPageCriteria(PageCriteria pageCriteria) {

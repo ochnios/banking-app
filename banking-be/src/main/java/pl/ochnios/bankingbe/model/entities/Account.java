@@ -2,6 +2,7 @@ package pl.ochnios.bankingbe.model.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,15 +25,16 @@ public class Account {
 
     @NotNull
     @Size(min = 26, max = 26) // polish bank account number
+    @Pattern(regexp = "^[0-9]{26}$")
     @Column(unique = true, nullable = false, length = 26)
     private String accountNumber;
 
-    @Setter
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     @MapsId
     private User owner;
 
+    @Setter
     @NotNull
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal balance;

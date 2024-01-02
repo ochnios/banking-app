@@ -2,20 +2,20 @@ package pl.ochnios.bankingbe.model.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
-@Builder
+
 @Entity
-@Getter
 @Table(name = "transfers")
+@Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Transfer {
@@ -25,7 +25,7 @@ public class Transfer {
     @Column(name = "transfer_id")
     private UUID id;
 
-    @NotNull
+    @CreationTimestamp
     @Column(nullable = false)
     private Date time;
 
@@ -38,41 +38,52 @@ public class Transfer {
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private User sender;
 
+    @Setter
     @NotNull
     @Size(min = 26, max = 26)
+    @Pattern(regexp = "^[0-9]{26}$")
     @Column(nullable = false, length = 26)
     private String senderAccountNumber;
 
+    @Setter
     @NotNull
-    @Size(min = 3, max = 80)
-    @Column(nullable = false)
+    @Size(min = 3, max = 101)
+    @Column(nullable = false, length = 101)
     private String senderName;
 
-    @NotNull
-    @Size(min = 3, max = 80)
-    @Column(nullable = false)
+    @Setter
+    @Size(min = 3, max = 200)
+    @Column(length = 200)
     private String senderAddress;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private User recipient;
 
     @NotNull
     @Size(min = 26, max = 26)
+    @Pattern(regexp = "^[0-9]{26}$")
     @Column(nullable = false, length = 26)
     private String recipientAccountNumber;
 
     @NotNull
-    @Size(min = 3, max = 80)
-    @Column(nullable = false)
+    @Size(min = 3, max = 101)
+    @Column(nullable = false, length = 101)
     private String recipientName;
 
-    @NotNull
-    @Size(min = 3, max = 80)
-    @Column(nullable = false)
+    @Size(min = 3, max = 200)
+    @Column(length = 200)
     private String recipientAddress;
+
+    @Setter
+    @NotNull
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private TransferType type;
 
     @Override
     public final boolean equals(Object o) {
