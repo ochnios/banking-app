@@ -22,7 +22,7 @@ import static java.util.Collections.list;
 @Component
 public class LoggingFilter extends GenericFilterBean {
 
-    private static final Logger log = LoggerFactory.getLogger(LoggingFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LoggingFilter.class);
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -33,20 +33,21 @@ public class LoggingFilter extends GenericFilterBean {
 
         logRequest(requestWrapper);
         logResponse(responseWrapper);
+
     }
 
     private void logRequest(ContentCachingRequestWrapper request) {
         StringBuilder builder = new StringBuilder();
         builder.append(headersToString(list(request.getHeaderNames()), request::getHeader));
         builder.append(new String(request.getContentAsByteArray()));
-        log.info("Request: {}", builder);
+        LOG.info("Request: {}", builder);
     }
 
     private void logResponse(ContentCachingResponseWrapper response) throws IOException {
         StringBuilder builder = new StringBuilder();
         builder.append(headersToString(response.getHeaderNames(), response::getHeader));
         builder.append(new String(response.getContentAsByteArray()));
-        log.info("Response: {}", builder);
+        LOG.info("Response: {}", builder);
         response.copyBodyToResponse();
     }
 
