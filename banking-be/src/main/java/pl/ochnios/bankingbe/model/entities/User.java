@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -53,10 +52,6 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "password_id")
     private Password password;
-
-    @OneToMany
-    @JoinColumn(name = "user_id")
-    private List<Transfer> transfers;
 
     // Technical attributes
     @Enumerated(value = EnumType.STRING)

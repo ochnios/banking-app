@@ -3,13 +3,21 @@ package pl.ochnios.bankingbe.model.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
+@Builder
 @Entity
+@Getter
 @Table(name = "transfers")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Transfer {
 
     @Id
