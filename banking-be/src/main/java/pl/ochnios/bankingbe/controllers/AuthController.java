@@ -20,6 +20,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthDto> login(@RequestBody LoginDto loginDto,
                                          HttpServletRequest request, HttpServletResponse response) {
+        delay(500);
 
         if (securityService.findAccessToken(request).isPresent()) {
             return ResponseEntity.badRequest().body(new AuthDto("Already logged in"));
@@ -38,5 +39,13 @@ public class AuthController {
         }
         securityService.removeAccessToken(response);
         return ResponseEntity.ok(new AuthDto("Successfully logged out"));
+    }
+
+    private void delay(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
