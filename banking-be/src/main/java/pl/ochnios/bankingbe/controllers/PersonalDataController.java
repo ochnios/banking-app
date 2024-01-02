@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.ochnios.bankingbe.model.dtos.output.GenericResponse;
+import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.PersonalDataDto;
 import pl.ochnios.bankingbe.security.SecurityService;
 import pl.ochnios.bankingbe.services.PersonalDataService;
@@ -21,9 +21,9 @@ public class PersonalDataController {
     private final PersonalDataService personalDataService;
 
     @GetMapping
-    public ResponseEntity<GenericResponse<PersonalDataDto>> getAccount() {
+    public ResponseEntity<ApiResponse<PersonalDataDto>> getAccount() {
         String userId = securityService.getAuthenticatedUserId();
         PersonalDataDto personalDataDto = personalDataService.getPersonalDataById(userId);
-        return ResponseEntity.ok().body(GenericResponse.success(personalDataDto));
+        return ResponseEntity.ok().body(ApiResponse.success(personalDataDto));
     }
 }

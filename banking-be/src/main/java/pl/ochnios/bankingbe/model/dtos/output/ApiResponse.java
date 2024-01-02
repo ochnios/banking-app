@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class GenericResponse<T> {
+public class ApiResponse<T> {
 
     private boolean success;
 
@@ -16,19 +16,19 @@ public class GenericResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
 
-    public static <T> GenericResponse<T> success() {
+    public static <T> ApiResponse<T> success() {
         return success(null);
     }
 
-    public static <T> GenericResponse<T> success(T data) {
-        return new GenericResponse<T>(true, null, data);
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<T>(true, null, data);
     }
 
-    public static <T> GenericResponse<T> error(String message) {
+    public static <T> ApiResponse<T> error(String message) {
         return error(message, null);
     }
 
-    public static <T> GenericResponse<T> error(String message, T data) {
-        return new GenericResponse<T>(false, message, data);
+    public static <T> ApiResponse<T> error(String message, T data) {
+        return new ApiResponse<T>(false, message, data);
     }
 }
