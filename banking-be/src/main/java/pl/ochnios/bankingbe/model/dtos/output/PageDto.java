@@ -1,4 +1,4 @@
-package pl.ochnios.bankingbe.model.dtos;
+package pl.ochnios.bankingbe.model.dtos.output;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

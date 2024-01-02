@@ -3,7 +3,7 @@ package pl.ochnios.bankingbe.model.mappers;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import pl.ochnios.bankingbe.model.dtos.TransferDto;
+import pl.ochnios.bankingbe.model.dtos.output.TransferDto;
 import pl.ochnios.bankingbe.model.entities.Transfer;
 
 import java.text.SimpleDateFormat;

@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
-import pl.ochnios.bankingbe.model.dtos.AuthDto;
-import pl.ochnios.bankingbe.model.dtos.LoginDto;
+import pl.ochnios.bankingbe.model.dtos.input.AuthDto;
+import pl.ochnios.bankingbe.model.dtos.output.LoginDto;
 import pl.ochnios.bankingbe.security.SecurityService;
 
 @RequestMapping("/api/auth")

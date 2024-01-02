@@ -1,4 +1,4 @@
-package pl.ochnios.bankingbe.model.dtos;
+package pl.ochnios.bankingbe.model.dtos.input;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

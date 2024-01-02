@@ -3,7 +3,7 @@ package pl.ochnios.bankingbe.services;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.ochnios.bankingbe.model.dtos.AccountDto;
+import pl.ochnios.bankingbe.model.dtos.output.AccountDto;
 import pl.ochnios.bankingbe.model.entities.Account;
 import pl.ochnios.bankingbe.model.mappers.AccountMapper;
 import pl.ochnios.bankingbe.repositories.AccountRepository;

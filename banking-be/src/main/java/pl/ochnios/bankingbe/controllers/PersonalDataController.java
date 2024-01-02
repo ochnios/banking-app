@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.ochnios.bankingbe.model.dtos.PersonalDataDto;
+import pl.ochnios.bankingbe.model.dtos.output.PersonalDataDto;
 import pl.ochnios.bankingbe.security.SecurityService;
 import pl.ochnios.bankingbe.services.PersonalDataService;
 

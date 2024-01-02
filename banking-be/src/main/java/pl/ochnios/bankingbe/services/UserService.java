@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import pl.ochnios.bankingbe.model.dtos.UserDto;
+import pl.ochnios.bankingbe.model.dtos.output.UserDto;
 import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.model.mappers.UserMapper;
 import pl.ochnios.bankingbe.repositories.UserRepository;

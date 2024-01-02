@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.data.domain.Page;
-import pl.ochnios.bankingbe.model.dtos.PageDto;
-import pl.ochnios.bankingbe.model.dtos.TransferDto;
+import pl.ochnios.bankingbe.model.dtos.output.PageDto;
+import pl.ochnios.bankingbe.model.dtos.output.TransferDto;
 import pl.ochnios.bankingbe.model.entities.Transfer;
 
 @Mapper(componentModel = "spring", uses = TransferMapper.class)

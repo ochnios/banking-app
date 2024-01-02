@@ -5,9 +5,9 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.ochnios.bankingbe.model.dtos.PageCriteria;
-import pl.ochnios.bankingbe.model.dtos.PageDto;
-import pl.ochnios.bankingbe.model.dtos.TransferDto;
+import pl.ochnios.bankingbe.model.dtos.input.PageCriteria;
+import pl.ochnios.bankingbe.model.dtos.output.PageDto;
+import pl.ochnios.bankingbe.model.dtos.output.TransferDto;
 import pl.ochnios.bankingbe.security.SecurityService;
 import pl.ochnios.bankingbe.services.TransferService;
 
