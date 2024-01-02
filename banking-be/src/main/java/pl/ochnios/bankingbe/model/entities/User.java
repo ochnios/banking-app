@@ -94,4 +94,17 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return status != UserStatus.INACTIVE;
     }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User other = (User) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return id.hashCode();
+    }
 }

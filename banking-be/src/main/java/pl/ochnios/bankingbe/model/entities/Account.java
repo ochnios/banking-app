@@ -36,4 +36,17 @@ public class Account {
     @NotNull
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal balance;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account other = (Account) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return id.hashCode();
+    }
 }

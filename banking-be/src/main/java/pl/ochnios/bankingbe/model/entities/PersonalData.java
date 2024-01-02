@@ -36,4 +36,17 @@ public class PersonalData {
 
     @Size(max = 50)
     private String identification;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PersonalData other = (PersonalData) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return id.hashCode();
+    }
 }

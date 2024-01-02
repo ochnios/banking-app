@@ -23,4 +23,17 @@ public class Password {
     @NotNull
     @Column(nullable = false)
     private String hash;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Password other = (Password) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return id.hashCode();
+    }
 }
