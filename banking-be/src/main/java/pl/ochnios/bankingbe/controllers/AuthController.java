@@ -3,7 +3,9 @@ package pl.ochnios.bankingbe.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.model.dtos.AuthDto;
 import pl.ochnios.bankingbe.model.dtos.LoginDto;
@@ -26,8 +28,12 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new AuthDto("Already logged in"));
         }
 
-        String accessToken = securityService.authenticateWithCredentials(loginDto);
-        securityService.setAccessToken(response, accessToken);
+        try {
+            String accessToken = securityService.authenticateWithCredentials(loginDto);
+            securityService.setAccessToken(response, accessToken);
+        } catch (BadCredentialsException e) {
+            return new ResponseEntity<>(new AuthDto("Bad credentials"), HttpStatus.UNAUTHORIZED);
+        }
 
         return ResponseEntity.ok(new AuthDto("Successfully logged in"));
     }
