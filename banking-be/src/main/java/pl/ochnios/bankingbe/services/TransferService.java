@@ -72,22 +72,30 @@ public class TransferService {
         transfer.setSenderName(sender.getName() + " " + sender.getSurname());
         transfer.setSenderAddress(senderData.getAddress());
 
-        BigDecimal senderAccountBalance = senderAccount.getBalance();
-        senderAccount.setBalance(senderAccountBalance.subtract(transfer.getAmount()));
-        accountRepository.save(senderAccount);
-
         Account recipientAccount = accountRepository.findAccountByAccountNumber(transfer.getRecipientAccountNumber()).orElse(null);
         if (recipientAccount == null) {
             transfer.setType(TransferType.EXTERNAL);
             externalTransfer();
         } else {
             transfer.setType(TransferType.INTERNAL);
-            BigDecimal recipientAccountBalance = recipientAccount.getBalance();
-            recipientAccount.setBalance(recipientAccountBalance.add(transfer.getAmount()));
-            accountRepository.save(recipientAccount);
+            updateRecipientAccountBalance(recipientAccount, transfer.getAmount());
         }
 
+        updateSenderAccountBalance(senderAccount, transfer.getAmount());
+
         return transferMapper.map(transferRepository.saveAndFlush(transfer));
+    }
+
+    private void updateSenderAccountBalance(Account senderAccount, BigDecimal transferAmount) {
+        BigDecimal senderAccountBalance = senderAccount.getBalance();
+        senderAccount.setBalance(senderAccountBalance.subtract(transferAmount));
+        accountRepository.save(senderAccount);
+    }
+
+    private void updateRecipientAccountBalance(Account recipientAccount, BigDecimal transferAmount) {
+        BigDecimal recipientAccountBalance = recipientAccount.getBalance();
+        recipientAccount.setBalance(recipientAccountBalance.add(transferAmount));
+        accountRepository.save(recipientAccount);
     }
 
     private void externalTransfer() {
