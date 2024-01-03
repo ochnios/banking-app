@@ -53,7 +53,7 @@ public class TransferService {
     }
 
     @Transactional
-    public TransferDto createTransfer(String senderId, TransferOrderDto transferOrderDto) {
+    public TransferDto processTransferOrder(String senderId, TransferOrderDto transferOrderDto) {
         UUID senderUUID = UUID.fromString(senderId);
         Transfer transfer = transferMapper.map(transferOrderDto);
 

@@ -58,7 +58,7 @@ public class TransferController {
 
         String userId = securityService.getAuthenticatedUserId();
         try {
-            TransferDto createdTransfer = transferService.createTransfer(userId, transferOrderDto);
+            TransferDto createdTransfer = transferService.processTransferOrder(userId, transferOrderDto);
             return ResponseEntity.accepted().body(ApiResponse.success(createdTransfer));
         } catch (TransferFailureException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
