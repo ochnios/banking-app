@@ -56,7 +56,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private User createUser(String name, String surname, String email, String username, String passwordStr) {
 
-        Password password = new Password(null, passwordEncoder.encode(passwordStr));
+        Password password = new Password(null, passwordEncoder.encode(passwordStr), "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         User user = new User(null, name, surname, email, username, password, UserStatus.ACTIVE, 0);
         user = userRepository.save(user);
         logger.info(userMapper.map(user).toString());

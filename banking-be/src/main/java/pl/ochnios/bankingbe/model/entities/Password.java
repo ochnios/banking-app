@@ -24,6 +24,63 @@ public class Password {
     @Column(nullable = false)
     private String hash;
 
+    @NotNull
+    @Column(nullable = false)
+    private String secret;
+
+    @NotNull
+    @Column(nullable = false)
+    private String currentCombo;
+
+    @NotNull
+    @Column(nullable = false)
+    private Integer s1;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s2;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s3;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s4;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s5;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s6;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s7;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s8;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s9;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s10;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s11;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s12;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s13;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s14;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s15;
+    @NotNull
+    @Column(nullable = false)
+    private Integer s16;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
