@@ -3,6 +3,7 @@ package pl.ochnios.bankingbe.model.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,6 +36,7 @@ public class Transfer {
     private String title;
 
     @NotNull
+    @Positive
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
