@@ -1,12 +1,10 @@
 package pl.ochnios.bankingbe.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.ochnios.bankingbe.exceptions.PasswordValidationException;
 import pl.ochnios.bankingbe.model.entities.Password;
-import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.repositories.UserRepository;
 import pl.ochnios.bankingbe.security.SecretShare;
 import pl.ochnios.bankingbe.security.Shamir;
@@ -15,8 +13,9 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
-import java.util.UUID;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,57 +28,55 @@ public class PasswordService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void setUserPassword(String userId, String inputPassword) {
+    public Password cratePartialPassword(String inputPassword) {
         if (!isPasswordValid(inputPassword)) {
             throw new PasswordValidationException("Entered password does not met the requirements");
         }
-        User user = findUserById(userId);
-        user.setPassword(buildPartialPassword(inputPassword));
-        userRepository.save(user);
+        return buildPartialPassword(inputPassword);
     }
 
-    public boolean verifyUserPassword(String userId, String partialPassword) {
-        if (!isPartialPasswordValid(partialPassword)) {
+    public boolean verifyPartialPassword(Password password, String inputPassword) {
+        if (!isPartialPasswordValid(inputPassword)) {
             return false;
         }
 
-        Password password = findUserById(userId).getPasswordEntity();
         SecretShare[] selectedShares = selectedSharesFromPersist(password.getShares(), password.getCurrentPositions());
-        BigInteger recoveredSecret = Shamir.combine(selectedShares, partialPassword);
+        BigInteger recoveredSecret = Shamir.combine(selectedShares, inputPassword);
 
         return passwordEncoder.matches(recoveredSecret.toString(), password.getSecretHash());
     }
 
-    // TEMP: PUBLIC ONLY FOR DATA SEEDER!!!
-    public Password buildPartialPassword(String inputPassword) {
-        if (!isPasswordValid(inputPassword)) {
-            throw new PasswordValidationException("Entered password does not met the requirements");
-        }
+    public void resetPositions(Password password) {
+        String newPositions;
+        do {
+            newPositions = positionsToPersist(generatePositions());
+        } while (newPositions.equals(password.getCurrentPositions()));
+        password.setCurrentPositions(newPositions);
+    }
 
+    private Password buildPartialPassword(String inputPassword) {
         Random random = getSecureRandom();
         BigInteger secret = Shamir.generateSecret(SECRET_LENGTH, random);
         SecretShare[] shares = Shamir.split(secret, inputPassword, MINIMUM_SHARES, TOTAL_SHARES, random);
 
-        int[] positions = {0, 1, 2, 3, 4}; // TEMP
-
         Password password = new Password();
         password.setHash(passwordEncoder.encode(inputPassword));
         password.setSecretHash(passwordEncoder.encode(secret.toString()));
-        password.setCurrentPositions(positionsToPersist(positions));
+        password.setCurrentPositions(positionsToPersist(generatePositions()));
         password.setShares(sharesToPersist(shares));
 
         return password;
     }
 
-    private User findUserById(String userId) {
-        return userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id=%s not found", userId)));
-    }
-
-    private String sharesToPersist(SecretShare[] shares) {
-        return Arrays.stream(shares)
-                .map(share -> share.share().toString())
-                .collect(Collectors.joining(","));
+    private int[] generatePositions() {
+        Random random = new Random();
+        Set<Integer> positionsSet = new HashSet<>();
+        while (positionsSet.size() < MINIMUM_SHARES) {
+            positionsSet.add(random.nextInt(TOTAL_SHARES) + 1);
+        }
+        int[] positionsArray = positionsSet.stream().mapToInt(Integer::intValue).toArray();
+        Arrays.sort(positionsArray);
+        return positionsArray;
     }
 
     private String positionsToPersist(int[] positions) {
@@ -89,15 +86,21 @@ public class PasswordService {
                 .collect(Collectors.joining(","));
     }
 
+    private String sharesToPersist(SecretShare[] shares) {
+        return Arrays.stream(shares)
+                .map(share -> share.share().toString())
+                .collect(Collectors.joining(","));
+    }
+
     private SecretShare[] selectedSharesFromPersist(String shares, String positions) {
         String[] sharesArr = shares.split(",");
         String[] positionsArr = positions.split(",");
-        SecretShare[] recovered = new SecretShare[positionsArr.length];
+        SecretShare[] selected = new SecretShare[positionsArr.length];
         for (int i = 0; i < positionsArr.length; i++) {
             int pos = Integer.parseInt(positionsArr[i]);
-            recovered[i] = new SecretShare(pos + 1, new BigInteger(sharesArr[pos]));
+            selected[i] = new SecretShare(pos, new BigInteger(sharesArr[pos - 1]));
         }
-        return recovered;
+        return selected;
     }
 
     private boolean isPasswordValid(String pwd) {

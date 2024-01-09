@@ -1,5 +1,6 @@
 package pl.ochnios.bankingbe.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
+import pl.ochnios.bankingbe.exceptions.BlockedAccountException;
 import pl.ochnios.bankingbe.model.dtos.input.LoginDto;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
@@ -31,11 +33,14 @@ public class AuthController {
             return ResponseEntity.badRequest().body(responseBody);
         } else {
             try {
-                String accessToken = securityService.authenticateWithCredentials(loginDto);
+                String accessToken = securityService.authenticateWithPartialPassword(loginDto);
                 securityService.setAccessToken(response, accessToken);
-            } catch (BadCredentialsException e) {
+            } catch (BadCredentialsException | EntityNotFoundException e) {
                 responseBody = ApiResponse.error("Bad credentials", null);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+            } catch (BlockedAccountException e) {
+                responseBody = ApiResponse.error("Your account was blocked due to security reasons. Please contact the bank.", null);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseBody);
             }
         }
 

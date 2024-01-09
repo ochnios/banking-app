@@ -43,7 +43,7 @@ public class DataSeeder implements CommandLineRunner {
         createPersonalData(user1, "123 Main Street, Warsaw, Mazovia, 00-001, Poland", "XXXXYYYYZZZZ0001", "XYZ00001");
         createAccount(user1, "00111122223333444455550001", "1000.00");
 
-        User user2 = createUser("Mark", "Smith", "mark.smith@example.com", "smithm1005", "HardPassword123@");
+        User user2 = createUser("Mark", "Smith", "mark.smith@example.com", "smithm1005", "HardPassword123!");
         createPersonalData(user2, "321 Side Street, Katowice, Silesia, 00-002, Poland", "XXXXYYYYZZZZ0002", "XYZ00002");
         createAccount(user2, "00111122223333444455550002", "100.00");
 
@@ -58,7 +58,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private User createUser(String name, String surname, String email, String username, String passwordStr) {
 
-        Password password = passwordService.buildPartialPassword(passwordStr);
+        Password password = passwordService.cratePartialPassword(passwordStr);
         User user = new User(null, name, surname, email, username, password, UserStatus.ACTIVE, 0);
         user = userRepository.save(user);
         logger.info(userMapper.map(user).toString());

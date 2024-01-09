@@ -53,11 +53,14 @@ public class User implements UserDetails {
     @JoinColumn(name = "password_id")
     private Password password;
 
-    // Technical attributes
+    @Setter
+    @NotNull
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
 
+    @Setter
+    @NotNull
     private Integer loginAttempts;
 
     @Override
