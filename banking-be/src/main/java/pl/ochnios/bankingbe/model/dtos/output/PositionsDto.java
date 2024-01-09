@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AuthDto {
+public class PositionsDto {
 
-    private String status;
+    private int[] positions;
 }

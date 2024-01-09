@@ -44,6 +44,7 @@ public class User implements UserDetails {
     private String email;
 
     @NotNull
+    @Size(min = 5, max = 50)
     @Column(unique = true, nullable = false)
     private String username;
 

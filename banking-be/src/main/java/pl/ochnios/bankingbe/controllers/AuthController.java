@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.exceptions.BlockedAccountException;
 import pl.ochnios.bankingbe.model.dtos.input.LoginDto;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
+import pl.ochnios.bankingbe.model.dtos.output.PositionsDto;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
 import pl.ochnios.bankingbe.security.SecurityService;
 
@@ -21,6 +23,27 @@ import pl.ochnios.bankingbe.security.SecurityService;
 public class AuthController {
 
     private final SecurityService securityService;
+
+    @GetMapping("/current-positions")
+    public ResponseEntity<ApiResponse<PositionsDto>> getCurrentPositions(
+            @RequestParam(required = false, name = "u") String usernameInput) {
+
+        delay(500);
+        String username = StringEscapeUtils.escapeJava(usernameInput);
+        if (!isUsernameCorrect(username)) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Incorrect username", null));
+        }
+
+        int[] positions;
+        try {
+            positions = securityService.getPartialPasswordPositions(username);
+        } catch (EntityNotFoundException e) {
+            positions = securityService.fakePartialPasswordPositions(username);
+        }
+
+        PositionsDto positionsDto = new PositionsDto(positions);
+        return ResponseEntity.ok().body(ApiResponse.success(positionsDto));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserDto>> login(@RequestBody LoginDto loginDto,
@@ -39,7 +62,8 @@ public class AuthController {
                 responseBody = ApiResponse.error("Bad credentials", null);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
             } catch (BlockedAccountException e) {
-                responseBody = ApiResponse.error("Your account was blocked due to security reasons. Please contact the bank.", null);
+                responseBody = ApiResponse.error(
+                        "Your account was blocked due to security reasons. Please contact the bank.", null);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseBody);
             }
         }
@@ -63,5 +87,14 @@ public class AuthController {
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private boolean isUsernameCorrect(String username) {
+        if (username != null && username.length() >= 5) {
+            for (char c : username.toCharArray()) {
+                if (c <= 0x20 || c >= 0x7F) return false;
+            }
+            return true;
+        } else return false;
     }
 }

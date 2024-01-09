@@ -44,6 +44,7 @@ public class SecurityConf {
                 .authorizeHttpRequests(
                         auth -> auth
                                 .requestMatchers("/h2-console/**").permitAll() // TEMP
+                                .requestMatchers(HttpMethod.GET, "/api/auth/current-positions").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/auth/logout").permitAll()
                                 .anyRequest().authenticated()

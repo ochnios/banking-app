@@ -81,6 +81,15 @@ public class SecurityService {
                 .findFirst();
     }
 
+    public int[] getPartialPasswordPositions(String username) {
+        User user = findUserByUsername(username);
+        return user.getPasswordEntity().getCurrentPositions();
+    }
+
+    public int[] fakePartialPasswordPositions(String username) {
+        return passwordService.fakePartialPasswordPositions(username);
+    }
+
     public void setAccessToken(HttpServletResponse response, String jwt) {
         response.addCookie(generateAuthCookie(jwt, SecurityConf.JWT_EXPIRATION_MS / 1000));
     }
@@ -118,22 +127,18 @@ public class SecurityService {
     private User findUserById(String userId) {
         User user = userRepository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Can't find user with id=%s to authenticate", userId)));
-
         if (user.getStatus() != UserStatus.ACTIVE) {
             throw new BlockedAccountException(String.format("Account with id=%s is blocked", userId));
         }
-
         return user;
     }
 
     private User findUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Can't find user with username=%s to authenticate", username)));
-
         if (user.getStatus() != UserStatus.ACTIVE) {
             throw new BlockedAccountException(String.format("Account with username=%s is blocked", username));
         }
-
         return user;
     }
 }
