@@ -33,7 +33,7 @@ public class PasswordService {
         return buildPartialPassword(inputPassword);
     }
 
-    public boolean verifyPartialPassword(Password password, String inputPassword) {
+    protected boolean verifyPartialPassword(Password password, String inputPassword) {
         if (!isPartialPasswordValid(inputPassword)) {
             return false;
         }
@@ -41,7 +41,7 @@ public class PasswordService {
         return passwordEncoder.matches(recoveredSecret.toString(), password.getSecretHash());
     }
 
-    public void resetPositions(Password password) {
+    protected void resetPositions(Password password) {
         int[] newPositions;
         do {
             newPositions = generatePositions(getSecureRandom());
@@ -49,13 +49,13 @@ public class PasswordService {
         password.setCurrentPositions(newPositions);
     }
 
-    public int[] fakePartialPasswordPositions(String username) {
+    protected int[] fakePartialPasswordPositions(String username) {
         LocalDate date = LocalDate.now();
         Random fakeRandom = new Random(username.hashCode() + date.getDayOfMonth() * date.getMonthValue());
         return generatePositions(fakeRandom);
     }
 
-    private Password buildPartialPassword(String inputPassword) {
+    protected Password buildPartialPassword(String inputPassword) {
         Random random = getSecureRandom();
         BigInteger secret = Shamir.generateSecret(SECRET_LENGTH, random);
         SecretShare[] shares = Shamir.split(secret, inputPassword, MINIMUM_SHARES, TOTAL_SHARES, random);
@@ -69,7 +69,7 @@ public class PasswordService {
         return password;
     }
 
-    private int[] generatePositions(Random random) {
+    protected int[] generatePositions(Random random) {
         Set<Integer> positionsSet = new HashSet<>();
         while (positionsSet.size() < MINIMUM_SHARES) {
             positionsSet.add(random.nextInt(TOTAL_SHARES) + 1);
@@ -79,17 +79,17 @@ public class PasswordService {
         return positionsArray;
     }
 
-    private boolean isPasswordValid(String pwd) {
+    protected boolean isPasswordValid(String pwd) {
         return pwd != null && pwd.length() == TOTAL_SHARES
                 && hasAllowedCharactersOnly(pwd) && isSecureEnough(pwd);
     }
 
-    private boolean isPartialPasswordValid(String pwd) {
+    protected boolean isPartialPasswordValid(String pwd) {
         return pwd != null && pwd.length() == MINIMUM_SHARES
                 && hasAllowedCharactersOnly(pwd);
     }
 
-    private boolean hasAllowedCharactersOnly(String pwd) {
+    protected boolean hasAllowedCharactersOnly(String pwd) {
         for (char c : pwd.toCharArray()) {
             if (c <= 0x20 || c >= 0x7F) {
                 return false;
@@ -98,7 +98,7 @@ public class PasswordService {
         return true;
     }
 
-    public boolean isSecureEnough(String pwd) {
+    protected boolean isSecureEnough(String pwd) {
         boolean hasLowercase = false; // [a-z]
         boolean hasUppercase = false; // [A-Z]
         boolean hasDigit = false; // [0-9]
@@ -113,7 +113,7 @@ public class PasswordService {
         return hasLowercase && hasUppercase && hasDigit && hasSpecial;
     }
 
-    private SecureRandom getSecureRandom() {
+    protected SecureRandom getSecureRandom() {
         try {
             return SecureRandom.getInstanceStrong();
         } catch (NoSuchAlgorithmException e) {

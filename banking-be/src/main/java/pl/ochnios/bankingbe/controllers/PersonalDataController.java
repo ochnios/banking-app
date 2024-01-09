@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.PersonalDataDto;
-import pl.ochnios.bankingbe.security.SecurityService;
 import pl.ochnios.bankingbe.services.PersonalDataService;
+import pl.ochnios.bankingbe.services.SecurityService;
 
 @RequestMapping("/api/user/personal")
 @RestController

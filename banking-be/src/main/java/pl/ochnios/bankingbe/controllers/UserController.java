@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
-import pl.ochnios.bankingbe.security.SecurityService;
-import pl.ochnios.bankingbe.services.PasswordService;
+import pl.ochnios.bankingbe.services.SecurityService;
 
 @RequestMapping("/api/user")
 @RestController
@@ -18,7 +17,6 @@ import pl.ochnios.bankingbe.services.PasswordService;
 public class UserController {
 
     private final SecurityService securityService;
-    private final PasswordService passwordService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<UserDto>> getById() {

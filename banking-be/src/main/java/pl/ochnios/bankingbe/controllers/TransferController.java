@@ -14,7 +14,7 @@ import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.PageDto;
 import pl.ochnios.bankingbe.model.dtos.output.TransferDto;
 import pl.ochnios.bankingbe.model.mappers.TransferMapper;
-import pl.ochnios.bankingbe.security.SecurityService;
+import pl.ochnios.bankingbe.services.SecurityService;
 import pl.ochnios.bankingbe.services.TransferService;
 
 import java.util.Set;

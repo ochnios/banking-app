@@ -14,7 +14,7 @@ import pl.ochnios.bankingbe.model.dtos.input.LoginDto;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.PositionsDto;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
-import pl.ochnios.bankingbe.security.SecurityService;
+import pl.ochnios.bankingbe.services.SecurityService;
 
 @RequestMapping("/api/auth")
 @RestController

@@ -1,4 +1,4 @@
-package pl.ochnios.bankingbe.security;
+package pl.ochnios.bankingbe.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
@@ -18,7 +18,8 @@ import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.model.entities.UserStatus;
 import pl.ochnios.bankingbe.model.mappers.UserMapper;
 import pl.ochnios.bankingbe.repositories.UserRepository;
-import pl.ochnios.bankingbe.services.PasswordService;
+import pl.ochnios.bankingbe.security.JwtProvider;
+import pl.ochnios.bankingbe.security.SecurityConf;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -81,6 +82,14 @@ public class SecurityService {
                 .findFirst();
     }
 
+    public void setAccessToken(HttpServletResponse response, String jwt) {
+        response.addCookie(generateAuthCookie(jwt, SecurityConf.JWT_EXPIRATION_MS / 1000));
+    }
+
+    public void removeAccessToken(HttpServletResponse response) {
+        response.addCookie(generateAuthCookie("", 0));
+    }
+
     public int[] getPartialPasswordPositions(String username) {
         User user = findUserByUsername(username);
         return user.getPasswordEntity().getCurrentPositions();
@@ -88,14 +97,6 @@ public class SecurityService {
 
     public int[] fakePartialPasswordPositions(String username) {
         return passwordService.fakePartialPasswordPositions(username);
-    }
-
-    public void setAccessToken(HttpServletResponse response, String jwt) {
-        response.addCookie(generateAuthCookie(jwt, SecurityConf.JWT_EXPIRATION_MS / 1000));
-    }
-
-    public void removeAccessToken(HttpServletResponse response) {
-        response.addCookie(generateAuthCookie("", 0));
     }
 
     private void handleSuccessfulAuthentication(User authUser) {
