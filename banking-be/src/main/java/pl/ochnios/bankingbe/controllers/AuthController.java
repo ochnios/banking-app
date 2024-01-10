@@ -28,8 +28,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserDto>> login(@RequestBody LoginDto loginDto,
                                                       HttpServletRequest request, HttpServletResponse response) {
-        delay(500);
-
+        securityService.delayOperation();
         ApiResponse<UserDto> responseBody;
         if (securityService.findAccessToken(request).isPresent()) {
             responseBody = ApiResponse.error("Already logged in", null);
@@ -65,6 +64,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<PositionsDto>> getCurrentPositions(
             @RequestParam(required = false, name = "u") String usernameInput) {
 
+        securityService.delayOperation();
         String username = StringEscapeUtils.escapeJava(usernameInput);
         if (!User.isUsernameCorrect(username)) {
             return ResponseEntity.badRequest().body(ApiResponse.error("Incorrect username", null));
@@ -82,13 +82,5 @@ public class AuthController {
 
         PositionsDto positionsDto = new PositionsDto(positions);
         return ResponseEntity.ok().body(ApiResponse.success(positionsDto));
-    }
-
-    private void delay(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
     }
 }

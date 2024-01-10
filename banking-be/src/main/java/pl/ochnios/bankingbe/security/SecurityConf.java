@@ -24,6 +24,7 @@ public class SecurityConf {
 
     public static final String AUTH_COOKIE_NAME = "accessToken";
     public static final int JWT_EXPIRATION_MS = 3 * 60 * 1000;
+    public static final int PUBLIC_ENDPOINTS_DELAY = 499;
 
     private final JwtAuthEntryPoint authEntryPoint;
 
@@ -47,6 +48,8 @@ public class SecurityConf {
                                 .requestMatchers(HttpMethod.GET, "/api/auth/current-positions").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/auth/logout").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/user/reset-password").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/user/reset-password").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .headers(headers -> headers

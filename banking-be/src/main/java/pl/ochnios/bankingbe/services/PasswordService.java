@@ -12,10 +12,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +20,7 @@ public class PasswordService {
     private static final int SECRET_LENGTH = 64;
     private static final int TOTAL_SHARES = 16;
     private static final int MINIMUM_SHARES = 5;
+    private static final int MINUTE = 60 * 1000;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -69,7 +67,18 @@ public class PasswordService {
         return password;
     }
 
-    protected int[] generatePositions(Random random) {
+    protected boolean validTokenExists(Password password) {
+        Date expires = password.getResetTokenExpiration();
+        return expires != null && (new Date()).before(expires);
+    }
+
+    protected void setResetToken(Password password) {
+        Date expires = new Date(new Date().getTime() + 15 * MINUTE);
+        password.setResetToken(UUID.randomUUID());
+        password.setResetTokenExpiration(expires);
+    }
+
+    private int[] generatePositions(Random random) {
         Set<Integer> positionsSet = new HashSet<>();
         while (positionsSet.size() < MINIMUM_SHARES) {
             positionsSet.add(random.nextInt(TOTAL_SHARES) + 1);
@@ -79,17 +88,17 @@ public class PasswordService {
         return positionsArray;
     }
 
-    protected boolean isPasswordValid(String pwd) {
+    private boolean isPasswordValid(String pwd) {
         return pwd != null && pwd.length() == TOTAL_SHARES
                 && hasAllowedCharactersOnly(pwd) && isSecureEnough(pwd);
     }
 
-    protected boolean isPartialPasswordValid(String pwd) {
+    private boolean isPartialPasswordValid(String pwd) {
         return pwd != null && pwd.length() == MINIMUM_SHARES
                 && hasAllowedCharactersOnly(pwd);
     }
 
-    protected boolean hasAllowedCharactersOnly(String pwd) {
+    private boolean hasAllowedCharactersOnly(String pwd) {
         for (char c : pwd.toCharArray()) {
             if (c <= 0x20 || c >= 0x7F) {
                 return false;
@@ -98,7 +107,7 @@ public class PasswordService {
         return true;
     }
 
-    protected boolean isSecureEnough(String pwd) {
+    private boolean isSecureEnough(String pwd) {
         boolean hasLowercase = false; // [a-z]
         boolean hasUppercase = false; // [A-Z]
         boolean hasDigit = false; // [0-9]
@@ -113,7 +122,7 @@ public class PasswordService {
         return hasLowercase && hasUppercase && hasDigit && hasSpecial;
     }
 
-    protected SecureRandom getSecureRandom() {
+    private SecureRandom getSecureRandom() {
         try {
             return SecureRandom.getInstanceStrong();
         } catch (NoSuchAlgorithmException e) {

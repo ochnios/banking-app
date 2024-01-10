@@ -7,6 +7,7 @@ import pl.ochnios.bankingbe.security.SecretShare;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,10 @@ public class Password {
     @NotNull
     @Column(nullable = false, length = 500)
     private String shares;
+
+    private UUID resetToken;
+
+    private Date resetTokenExpiration;
 
     @Override
     public final boolean equals(Object o) {

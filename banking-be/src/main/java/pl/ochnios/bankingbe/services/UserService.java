@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.ochnios.bankingbe.exceptions.BlockedAccountException;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
+import pl.ochnios.bankingbe.model.entities.Password;
 import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.model.mappers.UserMapper;
 import pl.ochnios.bankingbe.repositories.UserRepository;
@@ -20,6 +21,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordService passwordService;
 
     public UserDto getUserById(String userId) {
         return userMapper.map(getUserEntityById(userId));
@@ -61,5 +63,17 @@ public class UserService implements UserDetailsService {
 
     private boolean isAccountActive(User user) {
         return user.isAccountNonLocked() && user.isEnabled();
+    }
+
+    public String generateResetPasswordToken(String username) {
+        User user = getUserEntityByUsername(username);
+        Password password = user.getPasswordEntity();
+        if (passwordService.validTokenExists(password)) {
+            throw new IllegalStateException(String.format("Active reset token already exists for username=%s", username));
+        } else {
+            passwordService.setResetToken(password);
+        }
+        saveUser(user);
+        return password.getResetToken().toString();
     }
 }

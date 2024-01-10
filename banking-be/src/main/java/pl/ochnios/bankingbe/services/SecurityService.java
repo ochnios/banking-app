@@ -97,6 +97,18 @@ public class SecurityService {
         return passwordService.fakePartialPasswordPositions(username);
     }
 
+    public void delayOperation() {
+        delayOperation(SecurityConf.PUBLIC_ENDPOINTS_DELAY);
+    }
+
+    public void delayOperation(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private void handleSuccessfulAuthentication(User authUser) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 authUser, null, authUser.getAuthorities());

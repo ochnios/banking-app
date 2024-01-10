@@ -64,10 +64,6 @@ public class User implements UserDetails {
     @NotNull
     private Integer loginAttempts;
 
-    @Setter
-    @NotNull
-    Integer resetAttempts;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return new HashSet<SimpleGrantedAuthority>();
