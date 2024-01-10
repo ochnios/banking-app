@@ -1,6 +1,5 @@
 package pl.ochnios.bankingbe.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,13 +16,11 @@ import pl.ochnios.bankingbe.model.dtos.output.UserDto;
 import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.model.entities.UserStatus;
 import pl.ochnios.bankingbe.model.mappers.UserMapper;
-import pl.ochnios.bankingbe.repositories.UserRepository;
 import pl.ochnios.bankingbe.security.JwtProvider;
 import pl.ochnios.bankingbe.security.SecurityConf;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +29,7 @@ public class SecurityService {
     private final AuthenticationManager authManager;
     private final JwtProvider jwtProvider;
     private final PasswordService passwordService;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final UserMapper userMapper;
 
     public String getAuthenticatedUserId() {
@@ -53,7 +50,7 @@ public class SecurityService {
     }
 
     public String authenticateWithPartialPassword(LoginDto loginDto) {
-        User authUser = findUserByUsername(loginDto.getUsername());
+        User authUser = userService.getUserEntityByUsername(loginDto.getUsername());
         if (passwordService.verifyPartialPassword(authUser.getPasswordEntity(), loginDto.getPassword())) {
             handleSuccessfulAuthentication(authUser);
             return jwtProvider.generateJwtForUser(authUser);
@@ -64,7 +61,7 @@ public class SecurityService {
     }
 
     public String authenticateWithAccessToken(String jwt) {
-        User authUser = findUserById(jwtProvider.getUserIdFromJwt(jwt));
+        User authUser = userService.getUserEntityById(jwtProvider.getUserIdFromJwt(jwt));
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 authUser, null, authUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -78,6 +75,7 @@ public class SecurityService {
     public Optional<String> findAccessToken(HttpServletRequest request) {
         return Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[]{}))
                 .filter(cookie -> SecurityConf.AUTH_COOKIE_NAME.equals(cookie.getName()))
+                .filter(Cookie::isHttpOnly)
                 .map(Cookie::getValue)
                 .findFirst();
     }
@@ -91,7 +89,7 @@ public class SecurityService {
     }
 
     public int[] getPartialPasswordPositions(String username) {
-        User user = findUserByUsername(username);
+        User user = userService.getUserEntityByUsername(username);
         return user.getPasswordEntity().getCurrentPositions();
     }
 
@@ -106,15 +104,17 @@ public class SecurityService {
 
         authUser.setLoginAttempts(0);
         passwordService.resetPositions(authUser.getPasswordEntity());
-        userRepository.save(authUser);
+        userService.saveUser(authUser);
     }
 
     private void handleFailedAuthentication(User authUser) {
         if (authUser.getLoginAttempts() >= 3) {
             authUser.setStatus(UserStatus.BLOCKED);
+            userService.saveUser(authUser);
+            throw new BlockedAccountException("Account blocked after 3 failed login attempts.");
         }
         authUser.setLoginAttempts(authUser.getLoginAttempts() + 1);
-        userRepository.save(authUser);
+        userService.saveUser(authUser);
     }
 
     private Cookie generateAuthCookie(String jwt, int maxAge) {
@@ -123,23 +123,5 @@ public class SecurityService {
         authCookie.setHttpOnly(true);
         authCookie.setSecure(false); // TEMP
         return authCookie;
-    }
-
-    private User findUserById(String userId) {
-        User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Can't find user with id=%s to authenticate", userId)));
-        if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new BlockedAccountException(String.format("Account with id=%s is blocked", userId));
-        }
-        return user;
-    }
-
-    private User findUserByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Can't find user with username=%s to authenticate", username)));
-        if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new BlockedAccountException(String.format("Account with username=%s is blocked", username));
-        }
-        return user;
     }
 }

@@ -14,6 +14,7 @@ import pl.ochnios.bankingbe.model.dtos.input.LoginDto;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.PositionsDto;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
+import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.services.SecurityService;
 
 @RequestMapping("/api/auth")
@@ -23,27 +24,6 @@ import pl.ochnios.bankingbe.services.SecurityService;
 public class AuthController {
 
     private final SecurityService securityService;
-
-    @GetMapping("/current-positions")
-    public ResponseEntity<ApiResponse<PositionsDto>> getCurrentPositions(
-            @RequestParam(required = false, name = "u") String usernameInput) {
-
-        delay(500);
-        String username = StringEscapeUtils.escapeJava(usernameInput);
-        if (!isUsernameCorrect(username)) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Incorrect username", null));
-        }
-
-        int[] positions;
-        try {
-            positions = securityService.getPartialPasswordPositions(username);
-        } catch (EntityNotFoundException e) {
-            positions = securityService.fakePartialPasswordPositions(username);
-        }
-
-        PositionsDto positionsDto = new PositionsDto(positions);
-        return ResponseEntity.ok().body(ApiResponse.success(positionsDto));
-    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserDto>> login(@RequestBody LoginDto loginDto,
@@ -63,7 +43,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
             } catch (BlockedAccountException e) {
                 responseBody = ApiResponse.error(
-                        "Your account was blocked due to security reasons. Please contact the bank.", null);
+                        "Your account has been blocked due to security reasons. Please contact the bank.", null);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseBody);
             }
         }
@@ -81,20 +61,34 @@ public class AuthController {
         return ResponseEntity.ok().body(ApiResponse.success());
     }
 
+    @GetMapping("/current-positions")
+    public ResponseEntity<ApiResponse<PositionsDto>> getCurrentPositions(
+            @RequestParam(required = false, name = "u") String usernameInput) {
+
+        String username = StringEscapeUtils.escapeJava(usernameInput);
+        if (!User.isUsernameCorrect(username)) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Incorrect username", null));
+        }
+
+        int[] positions;
+        try {
+            positions = securityService.getPartialPasswordPositions(username);
+        } catch (EntityNotFoundException e) {
+            positions = securityService.fakePartialPasswordPositions(username);
+        } catch (BlockedAccountException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Your account is blocked. Please contact the bank."));
+        }
+
+        PositionsDto positionsDto = new PositionsDto(positions);
+        return ResponseEntity.ok().body(ApiResponse.success(positionsDto));
+    }
+
     private void delay(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    private boolean isUsernameCorrect(String username) {
-        if (username != null && username.length() >= 5) {
-            for (char c : username.toCharArray()) {
-                if (c <= 0x20 || c >= 0x7F) return false;
-            }
-            return true;
-        } else return false;
     }
 }

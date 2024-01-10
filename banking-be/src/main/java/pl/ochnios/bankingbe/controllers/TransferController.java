@@ -13,7 +13,6 @@ import pl.ochnios.bankingbe.model.dtos.input.TransferOrderDto;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.PageDto;
 import pl.ochnios.bankingbe.model.dtos.output.TransferDto;
-import pl.ochnios.bankingbe.model.mappers.TransferMapper;
 import pl.ochnios.bankingbe.services.SecurityService;
 import pl.ochnios.bankingbe.services.TransferService;
 
@@ -27,7 +26,6 @@ public class TransferController {
 
     private final SecurityService securityService;
     private final TransferService transferService;
-    private final TransferMapper transferMapper;
     private final Validator validator;
 
     @GetMapping("/{id}")

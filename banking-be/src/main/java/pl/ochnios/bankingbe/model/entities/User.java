@@ -64,6 +64,10 @@ public class User implements UserDetails {
     @NotNull
     private Integer loginAttempts;
 
+    @Setter
+    @NotNull
+    Integer resetAttempts;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return new HashSet<SimpleGrantedAuthority>();
@@ -114,5 +118,14 @@ public class User implements UserDetails {
     @Override
     public final int hashCode() {
         return id.hashCode();
+    }
+
+    public static boolean isUsernameCorrect(String username) {
+        if (username != null && username.length() >= 5) {
+            for (char c : username.toCharArray()) {
+                if (c <= 0x20 || c >= 0x7F) return false;
+            }
+            return true;
+        } else return false;
     }
 }
