@@ -31,6 +31,10 @@ public class Password {
 
     @NotNull
     @Column(nullable = false)
+    private Integer length;
+
+    @NotNull
+    @Column(nullable = false)
     private String secretHash;
 
     @NotNull
@@ -38,7 +42,7 @@ public class Password {
     private String currentPositions;
 
     @NotNull
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 680)
     private String shares;
 
     private UUID resetToken;

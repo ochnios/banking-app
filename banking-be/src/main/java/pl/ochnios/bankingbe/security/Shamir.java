@@ -25,7 +25,7 @@ public final class Shamir {
         for (int i = 1; i < needed; i++) {
             BigInteger r;
             do {
-                r = new BigInteger(PRIME.bitLength(), random);
+                r = new BigInteger(PRIME.bitLength() - 1, random);
             } while (r.compareTo(BigInteger.ZERO) <= 0 || r.compareTo(PRIME) >= 0);
             coeff[i] = r;
         }
@@ -86,16 +86,4 @@ public final class Shamir {
         BigInteger r = (k.compareTo(BigInteger.ZERO) == -1) ? (gcdD(Shamir.PRIME, k.negate())[2]).negate() : gcdD(Shamir.PRIME, k)[2];
         return Shamir.PRIME.add(r).mod(Shamir.PRIME);
     }
-
-    /*public static void main(String[] args) {
-        final SecureRandom random = new SecureRandom();
-        final BigInteger secret = new BigInteger(64, random);
-
-        final SecretShare[] shares = Shamir.split(secret, "0123456789abcdef", 5, 16, random);
-
-        SecretShare[] sharesToViewSecret = new SecretShare[]{shares[0], shares[1], shares[3], shares[9], shares[10]};
-        BigInteger result = Shamir.combine(sharesToViewSecret, "0139a");
-        System.out.println("saved secret: " + secret);
-        System.out.println("recovered secret: " + result);
-    }*/
 }
