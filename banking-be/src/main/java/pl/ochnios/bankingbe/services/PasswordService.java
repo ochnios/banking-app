@@ -18,8 +18,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class PasswordService {
     private static final int SECRET_LENGTH = 64;
-    private static final int TOTAL_SHARES = 16;
     private static final int MINIMUM_SHARES = 5;
+    private static final int MIN_PASSWORD_LEN = 12;
+    private static final int MAX_PASSWORD_LEN = 24;
     private static final int MINUTE = 60 * 1000;
 
     private final PasswordEncoder passwordEncoder;
@@ -42,7 +43,7 @@ public class PasswordService {
     protected void resetPositions(Password password) {
         int[] newPositions;
         do {
-            newPositions = generatePositions(getSecureRandom());
+            newPositions = generatePositions(getSecureRandom(), password.getLength());
         } while (Arrays.equals(newPositions, password.getCurrentPositions()));
         password.setCurrentPositions(newPositions);
     }
@@ -50,18 +51,19 @@ public class PasswordService {
     protected int[] fakePartialPasswordPositions(String username) {
         LocalDate date = LocalDate.now();
         Random fakeRandom = new Random(username.hashCode() + date.getDayOfMonth() * date.getMonthValue());
-        return generatePositions(fakeRandom);
+        return generatePositions(fakeRandom, MAX_PASSWORD_LEN);
     }
 
     protected Password buildPartialPassword(String inputPassword) {
         Random random = getSecureRandom();
         BigInteger secret = Shamir.generateSecret(SECRET_LENGTH, random);
-        SecretShare[] shares = Shamir.split(secret, inputPassword, MINIMUM_SHARES, TOTAL_SHARES, random);
+        SecretShare[] shares = Shamir.split(secret, inputPassword, MINIMUM_SHARES, inputPassword.length(), random);
 
         Password password = new Password();
         password.setHash(passwordEncoder.encode(inputPassword));
+        password.setLength(inputPassword.length());
         password.setSecretHash(passwordEncoder.encode(secret.toString()));
-        password.setCurrentPositions(generatePositions(random));
+        password.setCurrentPositions(generatePositions(random, inputPassword.length()));
         password.setShares(shares);
 
         return password;
@@ -78,10 +80,10 @@ public class PasswordService {
         password.setResetTokenExpiration(expires);
     }
 
-    private int[] generatePositions(Random random) {
+    private int[] generatePositions(Random random, int totalPositions) {
         Set<Integer> positionsSet = new HashSet<>();
         while (positionsSet.size() < MINIMUM_SHARES) {
-            positionsSet.add(random.nextInt(TOTAL_SHARES) + 1);
+            positionsSet.add(random.nextInt(totalPositions) + 1);
         }
         int[] positionsArray = positionsSet.stream().mapToInt(Integer::intValue).toArray();
         Arrays.sort(positionsArray);
@@ -89,7 +91,7 @@ public class PasswordService {
     }
 
     private boolean isPasswordValid(String pwd) {
-        return pwd != null && pwd.length() == TOTAL_SHARES
+        return pwd != null && pwd.length() >= MIN_PASSWORD_LEN && pwd.length() <= MAX_PASSWORD_LEN
                 && hasAllowedCharactersOnly(pwd) && isSecureEnough(pwd);
     }
 
