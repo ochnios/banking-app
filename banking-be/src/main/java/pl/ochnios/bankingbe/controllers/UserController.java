@@ -1,19 +1,26 @@
 package pl.ochnios.bankingbe.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.exceptions.BlockedAccountException;
-import pl.ochnios.bankingbe.model.dtos.input.ResetPasswordDto;
+import pl.ochnios.bankingbe.exceptions.PasswordValidationException;
+import pl.ochnios.bankingbe.exceptions.ResetTokenValidationException;
+import pl.ochnios.bankingbe.model.dtos.input.NewPasswordDto;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
 import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.services.EmailService;
 import pl.ochnios.bankingbe.services.SecurityService;
 import pl.ochnios.bankingbe.services.UserService;
+
+import java.util.Set;
 
 @RequestMapping("/api/user")
 @RestController
@@ -24,6 +31,7 @@ public class UserController {
     private final SecurityService securityService;
     private final UserService userService;
     private final EmailService emailService;
+    private final Validator validator;
 
     @GetMapping
     public ResponseEntity<ApiResponse<UserDto>> getById() {
@@ -32,8 +40,7 @@ public class UserController {
     }
 
     @GetMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Void>> getResetPasswordToken(
-            @RequestParam(required = false, name = "u") String usernameInput) {
+    public ResponseEntity<ApiResponse<Void>> getResetPasswordToken(@RequestParam(name = "u") String usernameInput) {
 
         securityService.delayOperation();
         String username = StringEscapeUtils.escapeJava(usernameInput);
@@ -55,8 +62,25 @@ public class UserController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestParam(name = "t") String tokenInput,
+                                                           @RequestBody NewPasswordDto newPasswordDto) {
+
         securityService.delayOperation();
-        throw new UnsupportedOperationException("Not implemented yet");
+        String token = StringEscapeUtils.escapeJava(tokenInput);
+        Set<ConstraintViolation<NewPasswordDto>> violations = validator.validate(newPasswordDto);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
+        try {
+            userService.resetUserPassword(token, newPasswordDto);
+        } catch (ResetTokenValidationException | PasswordValidationException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        } catch (BlockedAccountException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Your account is blocked. Please contact the bank."));
+        }
+
+        return ResponseEntity.ok().body(ApiResponse.success());
     }
 }

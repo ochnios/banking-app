@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.ochnios.bankingbe.exceptions.PasswordValidationException;
+import pl.ochnios.bankingbe.model.dtos.input.NewPasswordDto;
 import pl.ochnios.bankingbe.model.entities.Password;
 import pl.ochnios.bankingbe.security.SecretShare;
 import pl.ochnios.bankingbe.security.Shamir;
@@ -32,6 +33,13 @@ public class PasswordService {
         return buildPartialPassword(inputPassword);
     }
 
+    protected Password resetPassword(NewPasswordDto newPasswordDto) {
+        if (!newPasswordDto.getPassword().equals(newPasswordDto.getPasswordRetyped())) {
+            throw new PasswordValidationException("Passwords are not the same");
+        }
+        return cratePartialPassword(newPasswordDto.getPassword());
+    }
+
     protected boolean verifyPartialPassword(Password password, String inputPassword) {
         if (!isPartialPasswordValid(inputPassword)) {
             return false;
@@ -54,7 +62,18 @@ public class PasswordService {
         return generatePositions(fakeRandom, MAX_PASSWORD_LEN);
     }
 
-    protected Password buildPartialPassword(String inputPassword) {
+    protected boolean isResetTokenValid(Password password) {
+        Date expires = password.getResetTokenExpiration();
+        return expires != null && (new Date()).before(expires);
+    }
+
+    protected void setResetToken(Password password) {
+        Date expires = new Date(new Date().getTime() + 15 * MINUTE);
+        password.setResetToken(UUID.randomUUID());
+        password.setResetTokenExpiration(expires);
+    }
+
+    private Password buildPartialPassword(String inputPassword) {
         Random random = getSecureRandom();
         BigInteger secret = Shamir.generateSecret(SECRET_LENGTH, random);
         SecretShare[] shares = Shamir.split(secret, inputPassword, MINIMUM_SHARES, inputPassword.length(), random);
@@ -67,17 +86,6 @@ public class PasswordService {
         password.setShares(shares);
 
         return password;
-    }
-
-    protected boolean validTokenExists(Password password) {
-        Date expires = password.getResetTokenExpiration();
-        return expires != null && (new Date()).before(expires);
-    }
-
-    protected void setResetToken(Password password) {
-        Date expires = new Date(new Date().getTime() + 15 * MINUTE);
-        password.setResetToken(UUID.randomUUID());
-        password.setResetTokenExpiration(expires);
     }
 
     private int[] generatePositions(Random random, int totalPositions) {

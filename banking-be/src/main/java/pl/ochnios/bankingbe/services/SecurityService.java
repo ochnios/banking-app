@@ -75,7 +75,7 @@ public class SecurityService {
     public Optional<String> findAccessToken(HttpServletRequest request) {
         return Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[]{}))
                 .filter(cookie -> SecurityConf.AUTH_COOKIE_NAME.equals(cookie.getName()))
-                .filter(Cookie::isHttpOnly)
+                //.filter(Cookie::isHttpOnly) TEMP
                 .map(Cookie::getValue)
                 .findFirst();
     }

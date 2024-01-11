@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.ochnios.bankingbe.exceptions.BlockedAccountException;
+import pl.ochnios.bankingbe.exceptions.ResetTokenValidationException;
+import pl.ochnios.bankingbe.model.dtos.input.NewPasswordDto;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
 import pl.ochnios.bankingbe.model.entities.Password;
 import pl.ochnios.bankingbe.model.entities.User;
@@ -37,6 +39,26 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username=%s not found", username)));
     }
 
+    public String generateResetPasswordToken(String username) {
+        User user = getUserEntityByUsername(username);
+        Password password = user.getPasswordEntity();
+        if (passwordService.isResetTokenValid(password)) {
+            throw new IllegalStateException(String.format("Active reset token already exists for username=%s", username));
+        } else {
+            passwordService.setResetToken(password);
+        }
+        saveUser(user);
+        return password.getResetToken().toString();
+    }
+
+    public void resetUserPassword(String token, NewPasswordDto newPasswordDto) {
+        User user = getUserByToken(token);
+        validateUserAccount(user);
+        validateResetToken(user);
+        user.setPassword(passwordService.resetPassword(newPasswordDto));
+        saveUser(user);
+    }
+
     protected User getUserEntityById(String userId) {
         User user = userRepository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User with id=%s not found", userId)));
@@ -61,19 +83,24 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    private boolean isAccountActive(User user) {
-        return user.isAccountNonLocked() && user.isEnabled();
+    private User getUserByToken(String token) {
+        return userRepository.findByPassword_ResetToken(UUID.fromString(token))
+                .orElseThrow(() -> new ResetTokenValidationException("Given reset token is not valid"));
     }
 
-    public String generateResetPasswordToken(String username) {
-        User user = getUserEntityByUsername(username);
-        Password password = user.getPasswordEntity();
-        if (passwordService.validTokenExists(password)) {
-            throw new IllegalStateException(String.format("Active reset token already exists for username=%s", username));
-        } else {
-            passwordService.setResetToken(password);
+    private void validateUserAccount(User user) {
+        if (!user.isAccountNonLocked()) {
+            throw new BlockedAccountException("User account for given token is blocked.");
         }
-        saveUser(user);
-        return password.getResetToken().toString();
+    }
+
+    private void validateResetToken(User user) {
+        if (!passwordService.isResetTokenValid(user.getPasswordEntity())) {
+            throw new ResetTokenValidationException("Given reset token expired");
+        }
+    }
+
+    private boolean isAccountActive(User user) {
+        return user.isAccountNonLocked() && user.isEnabled();
     }
 }
