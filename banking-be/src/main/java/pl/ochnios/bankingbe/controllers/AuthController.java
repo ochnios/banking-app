@@ -3,6 +3,8 @@ package pl.ochnios.bankingbe.controllers;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,8 @@ import pl.ochnios.bankingbe.model.dtos.output.UserDto;
 import pl.ochnios.bankingbe.model.entities.User;
 import pl.ochnios.bankingbe.services.SecurityService;
 
+import java.util.Set;
+
 @RequestMapping("/api/auth")
 @RestController
 @CrossOrigin
@@ -24,12 +28,20 @@ import pl.ochnios.bankingbe.services.SecurityService;
 public class AuthController {
 
     private final SecurityService securityService;
+    private final Validator validator;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserDto>> login(@RequestBody LoginDto loginDto,
                                                       HttpServletRequest request, HttpServletResponse response) {
         securityService.delayOperation();
         ApiResponse<UserDto> responseBody;
+        
+        Set<ConstraintViolation<LoginDto>> violations = validator.validate(loginDto);
+        if (!violations.isEmpty()) {
+            responseBody = ApiResponse.error("Bad credentials", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+        }
+
         if (securityService.findAccessToken(request).isPresent()) {
             responseBody = ApiResponse.error("Already logged in", null);
             return ResponseEntity.badRequest().body(responseBody);

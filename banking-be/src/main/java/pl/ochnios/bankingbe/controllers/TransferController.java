@@ -1,7 +1,6 @@
 package pl.ochnios.bankingbe.controllers;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
@@ -51,7 +50,7 @@ public class TransferController {
     public ResponseEntity<ApiResponse<TransferDto>> newTransfer(@RequestBody TransferOrderDto transferOrderDto) {
         Set<ConstraintViolation<TransferOrderDto>> violations = validator.validate(transferOrderDto);
         if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+            return ResponseEntity.badRequest().body(ApiResponse.error("Check entered transfer details and try again"));
         }
 
         String userId = securityService.getAuthenticatedUserId();

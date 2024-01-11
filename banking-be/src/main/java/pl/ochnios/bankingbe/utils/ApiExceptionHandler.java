@@ -1,7 +1,5 @@
 package pl.ochnios.bankingbe.utils;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,22 +11,11 @@ import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class ApiExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandler.class);
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public final ResponseEntity<ApiResponse<ApiError>> handleConstraintViolation(ConstraintViolationException exception) {
-        String details = exception.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining("; "));
-        String traceId = Tracer.simpleTraceId();
-        ApiError apiError = new ApiError(currentTimestamp(), details, traceId);
-        return buildResponse("Constraint violation exception", apiError, HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<ApiResponse<ApiError>> handleException(Exception exception) {

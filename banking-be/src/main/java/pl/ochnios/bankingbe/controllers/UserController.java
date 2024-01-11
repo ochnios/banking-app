@@ -2,7 +2,6 @@ package pl.ochnios.bankingbe.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
@@ -69,7 +68,7 @@ public class UserController {
         String token = StringEscapeUtils.escapeJava(tokenInput);
         Set<ConstraintViolation<NewPasswordDto>> violations = validator.validate(newPasswordDto);
         if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+            return ResponseEntity.badRequest().body(ApiResponse.error("Entered password does not meet the requirements"));
         }
 
         try {

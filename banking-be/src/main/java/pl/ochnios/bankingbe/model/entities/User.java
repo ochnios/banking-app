@@ -3,6 +3,7 @@ package pl.ochnios.bankingbe.model.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,7 +45,8 @@ public class User implements UserDetails {
     private String email;
 
     @NotNull
-    @Size(min = 5, max = 50)
+    @Size(min = 3, max = 20)
+    @Pattern(regexp = "^[a-zA-Z0-9_.-]{3,20}$")
     @Column(unique = true, nullable = false)
     private String username;
 
