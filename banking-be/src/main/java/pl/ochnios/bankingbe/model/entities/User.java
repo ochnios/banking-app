@@ -66,6 +66,10 @@ public class User implements UserDetails {
     @NotNull
     private Integer loginAttempts;
 
+    @Setter
+    @NotNull
+    private Integer changeAttempts;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return new HashSet<SimpleGrantedAuthority>();

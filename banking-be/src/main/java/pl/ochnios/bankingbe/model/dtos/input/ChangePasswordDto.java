@@ -1,25 +1,26 @@
 package pl.ochnios.bankingbe.model.dtos.input;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import org.apache.commons.text.StringEscapeUtils;
 
 @Getter
-public class NewPasswordDto {
+public class ChangePasswordDto {
 
     @NotNull
     @Pattern(regexp = "[!-~]{12,24}")
-    private final String password;
+    private final String oldPassword;
 
     @NotNull
-    @Pattern(regexp = "[!-~]{12,24}")
-    private final String passwordRetyped;
+    @Valid
+    private final NewPasswordDto newPassword;
 
     @JsonCreator
-    public NewPasswordDto(String password, String passwordRetyped) {
-        this.password = StringEscapeUtils.escapeJava(password);
-        this.passwordRetyped = StringEscapeUtils.escapeJava(passwordRetyped);
+    public ChangePasswordDto(String oldPassword, NewPasswordDto newPassword) {
+        this.oldPassword = StringEscapeUtils.escapeJava(oldPassword);
+        this.newPassword = newPassword;
     }
 }

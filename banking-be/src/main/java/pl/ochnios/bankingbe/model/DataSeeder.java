@@ -59,7 +59,7 @@ public class DataSeeder implements CommandLineRunner {
     private User createUser(String name, String surname, String email, String username, String passwordStr) {
 
         Password password = passwordService.cratePartialPassword(passwordStr);
-        User user = new User(null, name, surname, email, username, password, UserStatus.ACTIVE, 0);
+        User user = new User(null, name, surname, email, username, password, UserStatus.ACTIVE, 0, 0);
         user = userRepository.save(user);
         logger.info(userMapper.map(user).toString());
         return user;

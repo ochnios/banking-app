@@ -40,6 +40,10 @@ public class PasswordService {
         return cratePartialPassword(newPasswordDto.getPassword());
     }
 
+    protected boolean passwordsMatches(String provided, String hash) {
+        return passwordEncoder.matches(provided, hash);
+    }
+
     protected boolean verifyPartialPassword(Password password, String inputPassword) {
         if (!isPartialPasswordValid(inputPassword)) {
             return false;

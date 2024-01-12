@@ -1,16 +1,19 @@
 package pl.ochnios.bankingbe.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.exceptions.BlockedAccountException;
 import pl.ochnios.bankingbe.exceptions.PasswordValidationException;
 import pl.ochnios.bankingbe.exceptions.ResetTokenValidationException;
+import pl.ochnios.bankingbe.model.dtos.input.ChangePasswordDto;
 import pl.ochnios.bankingbe.model.dtos.input.NewPasswordDto;
 import pl.ochnios.bankingbe.model.dtos.output.ApiResponse;
 import pl.ochnios.bankingbe.model.dtos.output.UserDto;
@@ -38,6 +41,23 @@ public class UserController {
         return ResponseEntity.ok().body(ApiResponse.success(userDto));
     }
 
+    @PostMapping("change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
+                                                            HttpServletResponse response) {
+
+        securityService.delayOperation();
+        try {
+            userService.changeUserPassword(changePasswordDto);
+        } catch (PasswordValidationException | BadCredentialsException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        } catch (BlockedAccountException e) {
+            securityService.removeAccessToken(response);
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+        
+        return ResponseEntity.ok().body(ApiResponse.success());
+    }
+
     @GetMapping("/reset-password")
     public ResponseEntity<ApiResponse<Void>> getResetPasswordToken(@RequestParam(name = "u") String usernameInput) {
 
@@ -62,8 +82,8 @@ public class UserController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestParam(name = "t") String tokenInput,
-                                                           @RequestBody NewPasswordDto newPasswordDto) {
-
+                                                           @RequestBody NewPasswordDto newPasswordDto,
+                                                           HttpServletResponse response) {
         securityService.delayOperation();
         String token = StringEscapeUtils.escapeJava(tokenInput);
         Set<ConstraintViolation<NewPasswordDto>> violations = validator.validate(newPasswordDto);
@@ -73,6 +93,7 @@ public class UserController {
 
         try {
             userService.resetUserPassword(token, newPasswordDto);
+            securityService.removeAccessToken(response); // when user is logged in and resets password
         } catch (ResetTokenValidationException | PasswordValidationException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         } catch (BlockedAccountException e) {

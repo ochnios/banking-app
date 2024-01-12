@@ -4,10 +4,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pl.ochnios.bankingbe.exceptions.BlockedAccountException;
@@ -26,7 +24,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SecurityService {
 
-    private final AuthenticationManager authManager;
     private final JwtProvider jwtProvider;
     private final PasswordService passwordService;
     private final UserService userService;
@@ -38,15 +35,6 @@ public class SecurityService {
 
     public UserDto getAuthenticatedUser() {
         return userMapper.map((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-    }
-
-    public String authenticateWithCredentials(LoginDto loginDto) {
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                loginDto.getUsername(), loginDto.getPassword());
-        Authentication auth = authManager.authenticate(authToken);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        return jwtProvider.generateJwtForUser((User) auth.getPrincipal());
     }
 
     public String authenticateWithPartialPassword(LoginDto loginDto) {

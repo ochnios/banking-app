@@ -13,7 +13,6 @@ public class LoginDto {
     private final String username;
 
     @NotNull
-    @Pattern(regexp = "[!-~]{12,24}")
     private final String password;
 
     public LoginDto(String username, String password) {
