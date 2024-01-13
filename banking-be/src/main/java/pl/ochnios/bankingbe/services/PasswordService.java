@@ -28,14 +28,17 @@ public class PasswordService {
 
     public Password cratePartialPassword(String inputPassword) {
         if (!isPasswordValid(inputPassword)) {
-            throw new PasswordValidationException("Entered password does not met the requirements");
+            throw new PasswordValidationException("Entered password does not meet the requirements");
         }
         return buildPartialPassword(inputPassword);
     }
 
-    protected Password resetPassword(NewPasswordDto newPasswordDto) {
+    protected Password newPassword(NewPasswordDto newPasswordDto, Password oldPassword) {
         if (!newPasswordDto.getPassword().equals(newPasswordDto.getPasswordRetyped())) {
             throw new PasswordValidationException("Passwords are not the same");
+        }
+        if (passwordEncoder.matches(newPasswordDto.getPassword(), oldPassword.getHash())) {
+            throw new PasswordValidationException("New password is the same as old password");
         }
         return cratePartialPassword(newPasswordDto.getPassword());
     }

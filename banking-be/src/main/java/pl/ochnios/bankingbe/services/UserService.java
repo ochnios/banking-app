@@ -55,18 +55,18 @@ public class UserService implements UserDetailsService {
         return password.getResetToken().toString();
     }
 
-    public void resetUserPassword(String token, NewPasswordDto newPasswordDto) {
+    public void resetPassword(String token, NewPasswordDto newPasswordDto) {
         User user = getUserByToken(token);
         validateUserAccount(user);
         validateResetToken(user);
-        user.setPassword(passwordService.resetPassword(newPasswordDto));
+        user.setPassword(passwordService.newPassword(newPasswordDto, user.getPasswordEntity()));
         saveUser(user);
     }
 
-    public void changeUserPassword(ChangePasswordDto changePasswordDto) {
+    public void changePassword(ChangePasswordDto changePasswordDto) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (passwordService.passwordsMatches(changePasswordDto.getOldPassword(), user.getPassword())) {
-            user.setPassword(passwordService.resetPassword(changePasswordDto.getNewPassword()));
+            user.setPassword(passwordService.newPassword(changePasswordDto.getNewPassword(), user.getPasswordEntity()));
             user.setChangeAttempts(0);
             saveUser(user);
         } else {
@@ -103,7 +103,7 @@ public class UserService implements UserDetailsService {
         if (user.getChangeAttempts() >= 3) {
             user.setStatus(UserStatus.BLOCKED);
             saveUser(user);
-            throw new BlockedAccountException("Account blocked after 3 failed change password attempts.");
+            throw new BlockedAccountException("Account has been blocked after 3 failed change password attempts.");
         }
         user.setChangeAttempts(user.getChangeAttempts() + 1);
         saveUser(user);

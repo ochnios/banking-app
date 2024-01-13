@@ -41,20 +41,26 @@ public class UserController {
         return ResponseEntity.ok().body(ApiResponse.success(userDto));
     }
 
-    @PostMapping("change-password")
+    @PostMapping("/change-password")
     public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
                                                             HttpServletResponse response) {
 
         securityService.delayOperation();
+        Set<ConstraintViolation<ChangePasswordDto>> violations = validator.validate(changePasswordDto);
+        if (!violations.isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Entered password does not meet the requirements"));
+        }
+
         try {
-            userService.changeUserPassword(changePasswordDto);
+            userService.changePassword(changePasswordDto);
+            securityService.removeAccessToken(response);
         } catch (PasswordValidationException | BadCredentialsException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         } catch (BlockedAccountException e) {
             securityService.removeAccessToken(response);
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(e.getMessage()));
         }
-        
+
         return ResponseEntity.ok().body(ApiResponse.success());
     }
 
@@ -92,7 +98,7 @@ public class UserController {
         }
 
         try {
-            userService.resetUserPassword(token, newPasswordDto);
+            userService.resetPassword(token, newPasswordDto);
             securityService.removeAccessToken(response); // when user is logged in and resets password
         } catch (ResetTokenValidationException | PasswordValidationException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
