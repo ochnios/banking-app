@@ -4,6 +4,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.ochnios.bankingbe.exceptions.TransferFailureException;
@@ -16,6 +18,7 @@ import pl.ochnios.bankingbe.services.SecurityService;
 import pl.ochnios.bankingbe.services.TransferService;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequestMapping("/api/user/transfer")
 @RestController
@@ -23,6 +26,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TransferController {
 
+    private final Logger LOG = LoggerFactory.getLogger(TransferController.class);
     private final SecurityService securityService;
     private final TransferService transferService;
     private final Validator validator;
@@ -48,16 +52,22 @@ public class TransferController {
 
     @PostMapping("/new")
     public ResponseEntity<ApiResponse<TransferDto>> newTransfer(@RequestBody TransferOrderDto transferOrderDto) {
+        String username = securityService.getAuthenticatedUser().getName();
+
         Set<ConstraintViolation<TransferOrderDto>> violations = validator.validate(transferOrderDto);
         if (!violations.isEmpty()) {
+            LOG.warn(String.format("Failed transfer order for %s: %s", username,
+                    violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("; "))));
             return ResponseEntity.badRequest().body(ApiResponse.error("Check entered transfer details and try again"));
         }
 
         String userId = securityService.getAuthenticatedUserId();
         try {
             TransferDto createdTransfer = transferService.processTransferOrder(userId, transferOrderDto);
+            LOG.info(String.format("Successful transfer order for %s", username));
             return ResponseEntity.accepted().body(ApiResponse.success(createdTransfer));
         } catch (TransferFailureException e) {
+            LOG.warn(String.format("Failed transfer order for %s: %s", username, e.getMessage()));
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }

@@ -6,6 +6,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,6 +25,7 @@ import pl.ochnios.bankingbe.services.SecurityService;
 import pl.ochnios.bankingbe.services.UserService;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequestMapping("/api/user")
 @RestController
@@ -30,6 +33,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserController {
 
+    private final Logger LOG = LoggerFactory.getLogger(UserController.class);
     private final SecurityService securityService;
     private final UserService userService;
     private final EmailService emailService;
@@ -45,9 +49,12 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
                                                             HttpServletResponse response) {
 
+        String username = securityService.getAuthenticatedUser().getName();
         securityService.delayOperation();
         Set<ConstraintViolation<ChangePasswordDto>> violations = validator.validate(changePasswordDto);
         if (!violations.isEmpty()) {
+            LOG.warn(String.format("Failed change password attempt for %s: %s", username,
+                    violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("; "))));
             return ResponseEntity.badRequest().body(ApiResponse.error("Entered password does not meet the requirements"));
         }
 
@@ -55,12 +62,15 @@ public class UserController {
             userService.changePassword(changePasswordDto);
             securityService.removeAccessToken(response);
         } catch (PasswordValidationException | BadCredentialsException e) {
+            LOG.warn(String.format("Failed change password attempt for %s: %s", username, e.getMessage()));
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         } catch (BlockedAccountException e) {
+            LOG.warn(String.format("Failed change password attempt for %s: %s", username, e.getMessage()));
             securityService.removeAccessToken(response);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(e.getMessage()));
         }
 
+        LOG.info(String.format("Successful change password attempt for %s", username));
         return ResponseEntity.ok().body(ApiResponse.success());
     }
 
@@ -70,6 +80,7 @@ public class UserController {
         securityService.delayOperation();
         String username = StringEscapeUtils.escapeJava(usernameInput);
         if (!User.isUsernameCorrect(username)) {
+            LOG.warn(String.format("Failed reset password attempt for %s: Incorrect username", username));
             return ResponseEntity.badRequest().body(ApiResponse.error("Incorrect username", null));
         }
 
@@ -77,8 +88,9 @@ public class UserController {
             String token = userService.generateResetPasswordToken(username);
             emailService.sendEmail("Reset your bank password", "https://localhost/reset-password?t=" + token);
         } catch (EntityNotFoundException | IllegalStateException e) {
-            // Just do nothing if requested user does not exist or active token already exists
+            LOG.warn(String.format("Ignored reset password request for %s: %s", username, e.getMessage()));
         } catch (BlockedAccountException e) {
+            LOG.warn(String.format("Refused reset password request for %s: %s", username, e.getMessage()));
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error("Your account is blocked. Please contact the bank."));
         }
@@ -101,12 +113,15 @@ public class UserController {
             userService.resetPassword(token, newPasswordDto);
             securityService.removeAccessToken(response); // when user is logged in and resets password
         } catch (ResetTokenValidationException | PasswordValidationException e) {
+            LOG.warn(String.format("Failed reset password operation: %s", e.getMessage()));
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         } catch (BlockedAccountException e) {
+            LOG.warn(String.format("Refused reset password operation: %s", e.getMessage()));
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error("Your account is blocked. Please contact the bank."));
         }
 
+        LOG.info(String.format("Successful reset password attempt for token: %s", tokenInput));
         return ResponseEntity.ok().body(ApiResponse.success());
     }
 }
