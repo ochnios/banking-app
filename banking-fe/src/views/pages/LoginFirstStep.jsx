@@ -34,7 +34,7 @@ export default function LoginFirstStep() {
                 className="form-control"
                 minLength="3"
                 maxLength="20"
-                pattern="^[a-zA-Z0-9_.-]{3,20}$/g"
+                pattern="^[a-zA-Z0-9_.\-]{3,20}$"
                 required
               />
             </div>
