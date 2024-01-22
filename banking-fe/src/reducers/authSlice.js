@@ -4,6 +4,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 const initialState = {
   authenticated: false,
   username: null,
+  name: null,
+  surname: null,
   positions: null,
   loading: false,
   errors: "",
@@ -47,16 +49,19 @@ const authSlice = createSlice({
     });
     builder.addCase(fetchCurrentPositions.rejected, (state, action) => {
       state.loading = false;
-      state.positions = [];
+      state.positions = null;
       state.errors = action.error.message;
     });
     builder.addCase(authenticate.pending, (state) => {
       state.loading = true;
     });
-    builder.addCase(authenticate.fulfilled, (state) => {
+    builder.addCase(authenticate.fulfilled, (state, action) => {
       state.loading = false;
       state.authenticated = true;
-      state.positions = [];
+      state.name = action.payload.data.name;
+      state.surname = action.payload.data.surname;
+      state.positions = null;
+      state.username = null;
       state.errors = "";
     });
     builder.addCase(authenticate.rejected, (state, action) => {

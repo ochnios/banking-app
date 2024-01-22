@@ -19,7 +19,6 @@ export default function LoginSecondStep() {
       })
       .join("");
 
-    console.log(partialPassword);
     dispatch(
       authenticate({
         username: auth.username,

@@ -2,11 +2,11 @@ import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 export default function PublicView(props) {
-  let authorized = useSelector((state) => state.auth.authorized);
+  let authenticated = useSelector((state) => state.auth.authenticated);
 
   return (
     <>
-      {authorized ? (
+      {authenticated ? (
         <div>
           <Navigate to="/account" />
         </div>

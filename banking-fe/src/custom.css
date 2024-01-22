@@ -10,3 +10,7 @@
   width: 100% !important;
   text-align: center !important;
 }
+
+.sign-link {
+  cursor: pointer;
+}
