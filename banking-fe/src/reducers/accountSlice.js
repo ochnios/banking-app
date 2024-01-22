@@ -26,13 +26,7 @@ const accountSlice = createSlice({
     });
     builder.addCase(fetchAccount.fulfilled, (state, action) => {
       state.loading = false;
-      state.balance = parseFloat(action.payload.data.balance).toLocaleString(
-        "pl-PL",
-        {
-          style: "currency",
-          currency: "PLN",
-        }
-      );
+      state.balance = action.payload.data.balance;
       state.accountNumber = action.payload.data.accountNumber;
       state.errors = "";
     });

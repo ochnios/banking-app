@@ -8,6 +8,7 @@ import AuthorizeView from "./views/layout/AuthorizeView";
 import LoginFirstStep from "./views/pages/LoginFirstStep.jsx";
 import LoginSecondStep from "./views/pages/LoginSecondStep.jsx";
 import AccountPage from "./views/pages/AccountPage";
+import TransfersPage from "./views/pages/TransfersPage.jsx";
 import { logout } from "./reducers/authSlice.js";
 import PublicView from "./views/layout/PublicView.jsx";
 
@@ -40,6 +41,14 @@ const router = createBrowserRouter([
         element: (
           <AuthorizeView>
             <AccountPage />
+          </AuthorizeView>
+        ),
+      },
+      {
+        path: "transfers",
+        element: (
+          <AuthorizeView>
+            <TransfersPage />
           </AuthorizeView>
         ),
       },

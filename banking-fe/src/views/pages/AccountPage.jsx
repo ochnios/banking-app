@@ -19,7 +19,7 @@ export default function AccountPage() {
           {account.errors ? (
             <div className="alert alert-danger">{account.errors}</div>
           ) : null}
-          <div className="mt-5">
+          <div className="mt-2">
             {account.loading && (
               <div className="spinner-border" role="status">
                 <span className="visually-hidden">Loading...</span>
@@ -29,7 +29,11 @@ export default function AccountPage() {
               <div>
                 <h1 className="mb-3">Hello, {auth.name}!</h1>
                 <p className="mb-1">
-                  <strong>Your balance:</strong> {account.balance}
+                  <strong>Your balance:</strong>{" "}
+                  {parseFloat(account?.balance).toLocaleString("pl-PL", {
+                    style: "currency",
+                    currency: "PLN",
+                  })}
                 </p>
                 <p>
                   <strong>Account number:</strong> {account.accountNumber}
