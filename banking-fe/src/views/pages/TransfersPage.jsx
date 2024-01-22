@@ -58,6 +58,7 @@ export default function TransfersPage() {
                         <th>Amount</th>
                         <th>Sender</th>
                         <th>Recipient</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -83,6 +84,11 @@ export default function TransfersPage() {
                           </td>
                           <td>{item.senderName}</td>
                           <td>{item.recipientName}</td>
+                          <td>
+                            <Link to={`/transfer-details/${item.id}`}>
+                              Details
+                            </Link>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

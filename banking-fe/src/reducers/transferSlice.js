@@ -20,13 +20,19 @@ export const fetchTransfers = createAsyncThunk(
     sortField = "time",
     sortDirection = "desc",
   }) => {
-    console.log(
-      `/user/transfer/search?pageNumber=${pageNumber}&pageSize=${pageSize}&sortField=${sortField}&sortDirection=${sortDirection}`
-    );
     return axios
       .get(
         `/user/transfer/search?pageNumber=${pageNumber}&pageSize=${pageSize}&sortField=${sortField}&sortDirection=${sortDirection}`
       )
+      .then((response) => response.data);
+  }
+);
+
+export const fetchTransfer = createAsyncThunk(
+  "fetchTransfer",
+  async (transferId) => {
+    return axios
+      .get(`/user/transfer/${transferId}`)
       .then((response) => response.data);
   }
 );
@@ -64,6 +70,19 @@ const transferSlice = createSlice({
     builder.addCase(fetchTransfers.rejected, (state, action) => {
       state.loading = false;
       state.transfers = null;
+      state.transfer = null;
+      state.errors = action.error.message;
+    });
+    builder.addCase(fetchTransfer.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(fetchTransfer.fulfilled, (state, action) => {
+      state.loading = false;
+      state.transfer = action.payload.data;
+      state.errors = "";
+    });
+    builder.addCase(fetchTransfer.rejected, (state, action) => {
+      state.loading = false;
       state.transfer = null;
       state.errors = action.error.message;
     });

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createTransferOrder } from "../../reducers/transferSlice";
 import { Navigate } from "react-router-dom";
@@ -103,7 +103,7 @@ export default function NewTransferPage() {
               </div>
             )}
             {!transfer.loading && transfer.transfer ? (
-              <Navigate to="/transfers" />
+              <Navigate to="/transfer-details" />
             ) : null}
           </div>
         </div>
