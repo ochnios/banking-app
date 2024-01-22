@@ -14,8 +14,7 @@ export default function AccountPage() {
   return (
     <div className="container-fluid py-5">
       <div className="row">
-        <div className="col-sm-3"></div>
-        <div className="col-sm-6">
+        <div className="col-sm-12">
           {account.errors ? (
             <div className="alert alert-danger">{account.errors}</div>
           ) : null}
@@ -42,7 +41,6 @@ export default function AccountPage() {
             )}
           </div>
         </div>
-        <div className="col-sm-3"></div>
       </div>
     </div>
   );
