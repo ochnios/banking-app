@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { authenticate } from "../../reducers/authSlice";
-import { Navigate } from "react-router-dom";
+import { authenticate, unauthenticate } from "../../reducers/authSlice";
+import { Link, Navigate } from "react-router-dom";
 
 export default function LoginSecondStep() {
   const dispatch = useDispatch();
@@ -124,6 +124,13 @@ export default function LoginSecondStep() {
                     Sign in
                   </button>
                 </div>
+                <Link
+                  to="/login-first-step"
+                  onClick={() => dispatch(unauthenticate())}
+                  className="mt-2"
+                >
+                  Back
+                </Link>
               </form>
               <div className="text-center mt-5">
                 {auth.loading && (

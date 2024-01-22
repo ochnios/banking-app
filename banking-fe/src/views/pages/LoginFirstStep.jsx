@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCurrentPositions } from "../../reducers/authSlice";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 export default function LoginFirstStep() {
   const dispatch = useDispatch();
@@ -39,6 +39,9 @@ export default function LoginFirstStep() {
                 Next
               </button>
             </div>
+            <Link to="/reset-password" className="mt-2">
+              Reset password
+            </Link>
           </form>
           <div className="text-center mt-5">
             {auth.loading && (
