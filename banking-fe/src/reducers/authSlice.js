@@ -2,7 +2,7 @@ import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
-  authenticated: false,
+  authenticated: true,
   username: null,
   name: null,
   surname: null,
@@ -34,7 +34,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: () => {
-      return initialState;
+      return { ...initialState, authenticated: false };
     },
   },
   extraReducers: (builder) => {
