@@ -11,6 +11,7 @@ import AccountPage from "./views/pages/AccountPage";
 import TransfersPage from "./views/pages/TransfersPage.jsx";
 import { logout } from "./reducers/authSlice.js";
 import PublicView from "./views/layout/PublicView.jsx";
+import NewTransferPage from "./views/pages/NewTransferPage.jsx";
 
 axios.defaults.baseURL = config.baseUrl;
 axios.defaults.withCredentials = true;
@@ -49,6 +50,14 @@ const router = createBrowserRouter([
         element: (
           <AuthorizeView>
             <TransfersPage />
+          </AuthorizeView>
+        ),
+      },
+      {
+        path: "new-transfer",
+        element: (
+          <AuthorizeView>
+            <NewTransferPage />
           </AuthorizeView>
         ),
       },

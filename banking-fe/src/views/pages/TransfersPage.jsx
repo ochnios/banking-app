@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTransfers } from "../../reducers/transferSlice";
+import { Link } from "react-router-dom";
+import { fetchAccount } from "../../reducers/accountSlice";
 
 export default function TransfersPage() {
   const dispatch = useDispatch();
@@ -9,6 +11,7 @@ export default function TransfersPage() {
   const [pageNumber, setPageNumber] = useState(1);
 
   useEffect(() => {
+    if (!account.accountNumber) dispatch(fetchAccount());
     dispatch(fetchTransfers({ pageNumber }));
   }, [pageNumber]);
 
@@ -39,7 +42,14 @@ export default function TransfersPage() {
             ) : (
               !transfer.errors && (
                 <>
-                  <h1 className="mb-3">Your transfers</h1>
+                  <div className="d-flex justify-content-between mb-3">
+                    <h1>Your transfers</h1>
+                    <div>
+                      <Link className="btn btn-primary" to="/new-transfer">
+                        New transfer
+                      </Link>
+                    </div>
+                  </div>
                   <table className="table table-striped">
                     <thead>
                       <tr>

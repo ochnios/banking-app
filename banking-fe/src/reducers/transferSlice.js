@@ -3,10 +3,12 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
   transfers: null,
+  transfer: null,
   pageNumber: null,
   totalPages: null,
   totalElements: null,
   loading: false,
+  creating: false,
   errors: "",
 };
 
@@ -29,6 +31,15 @@ export const fetchTransfers = createAsyncThunk(
   }
 );
 
+export const createTransferOrder = createAsyncThunk(
+  "createTransferOrder",
+  async (transferOrderDto) => {
+    return axios
+      .post("/user/transfer/new", transferOrderDto)
+      .then((response) => response.data);
+  }
+);
+
 const transferSlice = createSlice({
   name: "transfer",
   initialState,
@@ -44,6 +55,7 @@ const transferSlice = createSlice({
     builder.addCase(fetchTransfers.fulfilled, (state, action) => {
       state.loading = false;
       state.transfers = action.payload.data.content;
+      state.transfer = null;
       state.pageNumber = action.payload.data.number;
       state.totalPages = action.payload.data.totalPages;
       state.totalElements = action.payload.data.totalElements;
@@ -52,6 +64,20 @@ const transferSlice = createSlice({
     builder.addCase(fetchTransfers.rejected, (state, action) => {
       state.loading = false;
       state.transfers = null;
+      state.transfer = null;
+      state.errors = action.error.message;
+    });
+    builder.addCase(createTransferOrder.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(createTransferOrder.fulfilled, (state, action) => {
+      state.loading = false;
+      state.transfer = action.payload.data;
+      state.errors = "";
+    });
+    builder.addCase(createTransferOrder.rejected, (state, action) => {
+      state.loading = false;
+      state.transfer = null;
       state.errors = action.error.message;
     });
   },
