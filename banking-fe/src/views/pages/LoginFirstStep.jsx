@@ -32,6 +32,10 @@ export default function LoginFirstStep() {
                 id="username"
                 ref={usernameRef}
                 className="form-control"
+                minLength="3"
+                maxLength="20"
+                pattern="^[a-zA-Z0-9_.-]{3,20}$/g"
+                required
               />
             </div>
             <div className="d-flex justify-content-center">

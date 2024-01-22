@@ -90,7 +90,9 @@ export default function LoginSecondStep() {
                           }
                           disabled={!auth.positions.includes(index + 1)}
                           maxLength="1"
+                          minLength="1"
                           onChange={(e) => moveToNextCharacter(e, index + 1)}
+                          required
                         ></input>
                       </div>
                     ))}
@@ -113,7 +115,9 @@ export default function LoginSecondStep() {
                           }
                           disabled={!auth.positions.includes(index + 13)}
                           maxLength="1"
+                          minLength="1"
                           onChange={(e) => moveToNextCharacter(e, index + 13)}
+                          required
                         ></input>
                       </div>
                     ))}

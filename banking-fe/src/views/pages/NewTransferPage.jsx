@@ -17,7 +17,7 @@ export default function NewTransferPage() {
     dispatch(
       createTransferOrder({
         title: titleRef.current.value,
-        amount: amountRef.current.value,
+        amount: amountRef.current.value.replace(/,/g, "."),
         recipientAccountNumber: recipientAccountNumberRef.current.value,
         recipientName: recipientNameRef.current.value,
         recipientAddress: recipientAddressRef.current.value,
@@ -45,6 +45,9 @@ export default function NewTransferPage() {
                 id="title"
                 ref={titleRef}
                 className="form-control"
+                minLength={3}
+                maxLength={80}
+                required
               />
               <label htmlFor="amount" className="form-label mt-2">
                 Amount
@@ -55,6 +58,8 @@ export default function NewTransferPage() {
                 id="amount"
                 ref={amountRef}
                 className="form-control"
+                pattern="^[0-9]{1,15}([,.]{1}[0-9]{1,2})?$"
+                required
               />
               <label
                 htmlFor="recipientAccountNumber"
@@ -68,6 +73,9 @@ export default function NewTransferPage() {
                 id="recipientAccountNumber"
                 ref={recipientAccountNumberRef}
                 className="form-control"
+                size="26"
+                pattern="^[0-9]{26}$"
+                required
               />
               <label htmlFor="recipientName" className="form-label mt-2">
                 Recipient name
@@ -78,6 +86,9 @@ export default function NewTransferPage() {
                 id="recipientName"
                 ref={recipientNameRef}
                 className="form-control"
+                minLength={3}
+                maxLength={101}
+                required
               />
               <label htmlFor="recipientAddress" className="form-label mt-2">
                 Recipient address
@@ -88,6 +99,8 @@ export default function NewTransferPage() {
                 id="recipientAddress"
                 ref={recipientAddressRef}
                 className="form-control"
+                minLength={3}
+                maxLength={200}
               />
             </div>
             <div className="d-flex justify-content-center">

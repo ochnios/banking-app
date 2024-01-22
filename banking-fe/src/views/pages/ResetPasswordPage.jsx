@@ -58,8 +58,10 @@ export default function ResetPasswordPage() {
                   id="password"
                   ref={passwordRef}
                   className="form-control"
-                  minLength={12}
-                  maxLength={24}
+                  minLength="12"
+                  maxLength="24"
+                  pattern="[!-~]{12,24}"
+                  required
                 />
                 <label htmlFor="retypedPassword" className="form-label">
                   Retype password
@@ -70,8 +72,10 @@ export default function ResetPasswordPage() {
                   id="retypedPassword"
                   ref={retypedPasswordRef}
                   className="form-control"
-                  minLength={12}
-                  maxLength={24}
+                  minLength="12"
+                  maxLength="24"
+                  pattern="[!-~]{12,24}"
+                  required
                 />
               </div>
               <div className="d-flex justify-content-center">
@@ -103,6 +107,10 @@ export default function ResetPasswordPage() {
                   id="username"
                   ref={usernameRef}
                   className="form-control"
+                  minLength="3"
+                  maxLength="20"
+                  pattern="^[a-zA-Z0-9_.-]{3,20}$"
+                  required
                 />
               </div>
               <div className="d-flex justify-content-center">
