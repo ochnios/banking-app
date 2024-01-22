@@ -9,7 +9,7 @@ import LoginFirstStep from "./views/pages/LoginFirstStep.jsx";
 import LoginSecondStep from "./views/pages/LoginSecondStep.jsx";
 import AccountPage from "./views/pages/AccountPage";
 import TransfersPage from "./views/pages/TransfersPage.jsx";
-import { logout } from "./reducers/authSlice.js";
+import { unauthenticate } from "./reducers/authSlice.js";
 import PublicView from "./views/layout/PublicView.jsx";
 import NewTransferPage from "./views/pages/NewTransferPage.jsx";
 import TransferDetailsPage from "./views/pages/TransferDetailsPage.jsx";
@@ -25,7 +25,7 @@ axios.interceptors.response.use(
   function (error) {
     console.error(error.response);
     if (error.response?.status === 401 && !error.response?.data?.message) {
-      store.dispatch(logout());
+      store.dispatch(unauthenticate());
       return Promise.reject(config.unauthorizedMessage);
     } else if (error.response?.data?.message) {
       return Promise.reject(error.response.data.message);

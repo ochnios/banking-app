@@ -29,15 +29,22 @@ export const authenticate = createAsyncThunk(
   }
 );
 
+export const logout = createAsyncThunk("logout", async () => {
+  return axios.get("/auth/logout").then((response) => response.data);
+});
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: () => {
+    unauthenticate: () => {
       return { ...initialState, authenticated: false };
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(logout.fulfilled, () => {
+      return { ...initialState, authenticated: false };
+    });
     builder.addCase(fetchCurrentPositions.pending, (state) => {
       state.loading = true;
     });
@@ -71,5 +78,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { unauthenticate } = authSlice.actions;
 export default authSlice.reducer;
