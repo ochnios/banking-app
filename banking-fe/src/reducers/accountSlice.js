@@ -15,11 +15,6 @@ export const fetchAccount = createAsyncThunk("fetchAccount", async () => {
 const accountSlice = createSlice({
   name: "account",
   initialState,
-  reducers: {
-    logout: () => {
-      return initialState;
-    },
-  },
   extraReducers: (builder) => {
     builder.addCase(fetchAccount.pending, (state) => {
       state.loading = true;

@@ -13,6 +13,7 @@ import { unauthenticate } from "./reducers/authSlice.js";
 import PublicView from "./views/layout/PublicView.jsx";
 import NewTransferPage from "./views/pages/NewTransferPage.jsx";
 import TransferDetailsPage from "./views/pages/TransferDetailsPage.jsx";
+import PersonalDataPage from "./views/pages/PersonalDataPage.jsx";
 
 axios.defaults.baseURL = config.baseUrl;
 axios.defaults.withCredentials = true;
@@ -43,6 +44,14 @@ const router = createBrowserRouter([
         element: (
           <AuthorizeView>
             <AccountPage />
+          </AuthorizeView>
+        ),
+      },
+      {
+        path: "personal-data",
+        element: (
+          <AuthorizeView>
+            <PersonalDataPage />
           </AuthorizeView>
         ),
       },

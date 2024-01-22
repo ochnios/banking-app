@@ -43,9 +43,9 @@ export default function Navigation() {
                   <Link
                     className={
                       "nav-link " +
-                      (match?.params?.page === "personal" && "active")
+                      (match?.params?.page === "personal-data" && "active")
                     }
-                    to="/personal"
+                    to="/personal-data"
                   >
                     Personal
                   </Link>
