@@ -1,0 +1,35 @@
+meta {
+  name: search transfers with criteria
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/user/transfer/search?type=all&pageNumber=1&pageSize=20&sortField=time&sortDirection=desc
+  body: none
+  auth: none
+}
+
+query {
+  type: all
+  pageNumber: 1
+  pageSize: 20
+  sortField: time
+  sortDirection: desc
+}
+
+script:pre-request {
+  const cookie = bru.getVar("cookie");
+  
+  if(cookie) {
+    req.setHeader("Cookie", cookie);
+  }
+}
+
+script:post-response {
+  const cookies = res.getHeader('set-cookie');
+  
+  if(cookies) {
+    bru.setVar("cookie", cookies.join('; '));
+  }
+}

@@ -1,0 +1,36 @@
+meta {
+  name: new transfer
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/user/transfer/new
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Transfer",
+    "amount": "-115",
+    "recipientAccountNumber": "00111122223333444455550002",
+    "recipientName": "Mark Smith"
+  }
+}
+
+script:pre-request {
+  const cookie = bru.getVar("cookie");
+  
+  if(cookie) {
+    req.setHeader("Cookie", cookie);
+  }
+}
+
+script:post-response {
+  const cookies = res.getHeader('set-cookie');
+  
+  if(cookies) {
+    bru.setVar("cookie", cookies.join('; '));
+  }
+}

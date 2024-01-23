@@ -1,0 +1,36 @@
+meta {
+  name: get positions
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/auth/current-positions?u=doej3622
+  body: json
+  auth: none
+}
+
+query {
+  u: doej3622
+}
+
+script:pre-request {
+  const cookie = bru.getVar("cookie");
+  
+  if(cookie) {
+    req.setHeader("Cookie", cookie);
+  }
+}
+
+script:post-response {
+  const cookies = res.getHeader('set-cookie');
+  
+  if(cookies) {
+    bru.setVar("cookie", cookies.join('; '));
+  }
+  
+  let positions = res.getBody().data.positions;
+  bru.setEnvVar("positions",positions);
+  
+  
+}
