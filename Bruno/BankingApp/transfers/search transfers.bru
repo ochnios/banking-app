@@ -1,0 +1,27 @@
+meta {
+  name: search transfers
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/user/transfer/search
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const cookie = bru.getVar("cookie");
+  
+  if(cookie) {
+    req.setHeader("Cookie", cookie);
+  }
+}
+
+script:post-response {
+  const cookies = res.getHeader('set-cookie');
+  
+  if(cookies) {
+    bru.setVar("cookie", cookies.join('; '));
+  }
+}
