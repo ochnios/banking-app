@@ -1,5 +1,5 @@
 const config = {
-  baseUrl: "http://localhost:8080/api/",
+  baseUrl: "https://localhost/api/",
   unauthorizedMessage: "Unauthorized, please login.",
   genericErrorMessage: "Something went wrong, try again later.",
 };

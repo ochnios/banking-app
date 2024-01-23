@@ -6,6 +6,8 @@ import transferReducer from "./reducers/transferSlice";
 import passwordReducer from "./reducers/passwordSlice";
 
 const persistedState = JSON.parse(localStorage.getItem("reduxState") || "{}");
+persistedState.auth.positions = false;
+persistedState.auth.errors = "";
 
 const store = configureStore({
   reducer: {

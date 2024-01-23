@@ -1,5 +1,9 @@
 import { Provider } from "react-redux";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  Navigate,
+  RouterProvider,
+  createBrowserRouter,
+} from "react-router-dom";
 import axios from "axios";
 import config from "./config.js";
 import store from "./store";
@@ -103,6 +107,10 @@ const router = createBrowserRouter([
             <ResetPasswordPage />
           </PublicView>
         ),
+      },
+      {
+        path: "*",
+        element: <Navigate to="/" />,
       },
     ],
   },
