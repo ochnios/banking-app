@@ -80,7 +80,7 @@ export default function ResetPasswordPage() {
               </div>
               <div className="d-flex justify-content-center">
                 <button type="submit" className="btn btn-dark">
-                  Send reset password link
+                  Reset password
                 </button>
               </div>
             </form>

@@ -65,12 +65,12 @@ export default function Navigation() {
                     dispatch(logout());
                   }}
                 >
-                  Wyloguj
+                  Sign out
                 </a>
               </>
             ) : (
               <Link className="sign-link text-white-50" to="/login-first-step">
-                Zaloguj
+                Sign in
               </Link>
             )}
           </div>
