@@ -7,8 +7,8 @@ import passwordReducer from "./reducers/passwordSlice";
 
 const persistedState = JSON.parse(localStorage.getItem("reduxState") || "{}");
 if (persistedState) {
-  persistedState.auth.positions = false;
-  persistedState.auth.errors = "";
+  persistedState.positions = false;
+  persistedState.errors = "";
 }
 
 const store = configureStore({
