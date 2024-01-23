@@ -8,6 +8,9 @@ cd banking-app
 docker compose up -d
 ```
 
+Frontend should be available on https://localhost.
+There is also Bruno collection which can be used for discovering API endpoints.
+
 **After making changes to the frontend**
 
 ```shell
