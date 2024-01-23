@@ -1,0 +1,27 @@
+services:
+  banking-be:
+    build:
+      context: .
+      dockerfile: spring.Dockerfile
+
+  proxy:
+    image: nginx
+    volumes:
+      - type: bind
+        source: ./nginx/nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+      - type: bind
+        source: ./nginx/pkcs8_key.pem
+        target: /etc/nginx/conf.d/server.key
+      - type: bind
+        source: ./nginx/server.cert
+        target: /etc/nginx/conf.d/server.cert
+      - type: bind
+        source: ./banking-fe/dist
+        target: /usr/share/nginx/html
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - banking-be

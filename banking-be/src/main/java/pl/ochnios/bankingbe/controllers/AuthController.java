@@ -23,7 +23,6 @@ import java.util.Set;
 
 @RequestMapping("/api/auth")
 @RestController
-@CrossOrigin
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -35,7 +34,7 @@ public class AuthController {
                                                       HttpServletRequest request, HttpServletResponse response) {
         securityService.delayOperation();
         ApiResponse<UserDto> responseBody;
-        
+
         Set<ConstraintViolation<LoginDto>> violations = validator.validate(loginDto);
         if (!violations.isEmpty()) {
             responseBody = ApiResponse.error("Bad credentials", null);

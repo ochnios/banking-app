@@ -1,35 +1,125 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Provider } from "react-redux";
+import {
+  Navigate,
+  RouterProvider,
+  createBrowserRouter,
+} from "react-router-dom";
+import axios from "axios";
+import config from "./config.js";
+import store from "./store";
+import Layout from "./views/layout/Layout";
+import AuthorizeView from "./views/layout/AuthorizeView";
+import LoginFirstStep from "./views/pages/LoginFirstStep.jsx";
+import LoginSecondStep from "./views/pages/LoginSecondStep.jsx";
+import AccountPage from "./views/pages/AccountPage";
+import TransfersPage from "./views/pages/TransfersPage.jsx";
+import { unauthenticate } from "./reducers/authSlice.js";
+import PublicView from "./views/layout/PublicView.jsx";
+import NewTransferPage from "./views/pages/NewTransferPage.jsx";
+import TransferDetailsPage from "./views/pages/TransferDetailsPage.jsx";
+import PersonalDataPage from "./views/pages/PersonalDataPage.jsx";
+import ResetPasswordPage from "./views/pages/ResetPasswordPage.jsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+axios.defaults.baseURL = config.baseUrl;
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.headers.common["Accept"] = "application/json";
+axios.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    console.error(error.response);
+    if (error.response?.status === 401 && !error.response?.data?.message) {
+      store.dispatch(unauthenticate());
+      return Promise.reject(config.unauthorizedMessage);
+    } else if (error.response?.data?.message) {
+      return Promise.reject(error.response.data.message);
+    } else return Promise.reject(config.genericErrorMessage);
+  }
+);
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      {
+        path: "account",
+        element: (
+          <AuthorizeView>
+            <AccountPage />
+          </AuthorizeView>
+        ),
+      },
+      {
+        path: "personal-data",
+        element: (
+          <AuthorizeView>
+            <PersonalDataPage />
+          </AuthorizeView>
+        ),
+      },
+      {
+        path: "transfers",
+        element: (
+          <AuthorizeView>
+            <TransfersPage />
+          </AuthorizeView>
+        ),
+      },
+      {
+        path: "transfer-details/:id?",
+        element: (
+          <AuthorizeView>
+            <TransferDetailsPage />
+          </AuthorizeView>
+        ),
+      },
+      {
+        path: "new-transfer",
+        element: (
+          <AuthorizeView>
+            <NewTransferPage />
+          </AuthorizeView>
+        ),
+      },
+      {
+        path: "login-first-step",
+        element: (
+          <PublicView>
+            <LoginFirstStep />
+          </PublicView>
+        ),
+      },
+      {
+        path: "login-second-step",
+        element: (
+          <PublicView>
+            <LoginSecondStep />
+          </PublicView>
+        ),
+      },
+      {
+        path: "reset-password/:token?",
+        element: (
+          <PublicView>
+            <ResetPasswordPage />
+          </PublicView>
+        ),
+      },
+      {
+        path: "*",
+        element: <Navigate to="/" />,
+      },
+    ],
+  },
+]);
+
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  );
 }
-
-export default App

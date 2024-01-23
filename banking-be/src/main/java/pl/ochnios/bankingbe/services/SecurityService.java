@@ -121,7 +121,8 @@ public class SecurityService {
         Cookie authCookie = new Cookie(SecurityConf.AUTH_COOKIE_NAME, jwt);
         authCookie.setMaxAge(maxAge);
         authCookie.setHttpOnly(true);
-        authCookie.setSecure(false); // TEMP
+        authCookie.setPath("/");
+        authCookie.setSecure(true);
         return authCookie;
     }
 }

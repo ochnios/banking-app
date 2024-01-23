@@ -19,7 +19,6 @@ import java.util.Set;
 
 @RequestMapping("/api/user/transfer")
 @RestController
-@CrossOrigin
 @RequiredArgsConstructor
 public class TransferController {
 

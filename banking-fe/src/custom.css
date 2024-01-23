@@ -1,0 +1,17 @@
+.main-container {
+  max-width: 768px !important;
+}
+
+.partial-password-line {
+  width: 100% !important;
+}
+
+.partial-password-char input {
+  width: 100% !important;
+  text-align: center !important;
+}
+
+.sign-link,
+.page-link {
+  cursor: pointer;
+}
