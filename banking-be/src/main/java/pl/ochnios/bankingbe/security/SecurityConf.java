@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConf {
 
     public static final String AUTH_COOKIE_NAME = "accessToken";
-    public static final int JWT_EXPIRATION_MS = 3 * 60 * 1000;
+    public static final int JWT_EXPIRATION_MS = 5 * 60 * 1000;
     public static final int PUBLIC_ENDPOINTS_DELAY = 499;
 
     private final JwtAuthEntryPoint authEntryPoint;
@@ -31,7 +30,7 @@ public class SecurityConf {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())
+                //.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(authEntryPoint)
@@ -44,7 +43,7 @@ public class SecurityConf {
                 )
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/h2-console/**").permitAll() // TEMP
+                                //.requestMatchers("/h2-console/**").permitAll() // TEMP
                                 .requestMatchers(HttpMethod.GET, "/api/auth/current-positions").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/auth/logout").permitAll()
@@ -52,10 +51,10 @@ public class SecurityConf {
                                 .requestMatchers(HttpMethod.POST, "/api/user/reset-password").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .headers(headers -> headers
-                        // TEMP necessary to make h2-console available
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
-                )
+//                .headers(headers -> headers
+//                        // TEMP necessary to make h2-console available
+//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+//                )
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();

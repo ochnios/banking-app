@@ -78,6 +78,7 @@ public class TransferService {
             externalTransfer();
         } else {
             transfer.setType(TransferType.INTERNAL);
+            transfer.setRecipient(recipientAccount.getOwner());
             updateRecipientAccountBalance(recipientAccount, transfer.getAmount());
         }
 

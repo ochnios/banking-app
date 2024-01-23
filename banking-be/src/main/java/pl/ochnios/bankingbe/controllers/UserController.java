@@ -26,7 +26,6 @@ import java.util.Set;
 
 @RequestMapping("/api/user")
 @RestController
-@CrossOrigin
 @RequiredArgsConstructor
 public class UserController {
 
@@ -75,7 +74,7 @@ public class UserController {
 
         try {
             String token = userService.generateResetPasswordToken(username);
-            emailService.sendEmail("Reset your bank password", "https://localhost/reset-password?t=" + token);
+            emailService.sendEmail("Reset your bank password", "https://localhost/reset-password/" + token);
         } catch (EntityNotFoundException | IllegalStateException e) {
             // Just do nothing if requested user does not exist or active token already exists
         } catch (BlockedAccountException e) {
